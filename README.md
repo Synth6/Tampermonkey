@@ -1,2 +1,2 @@
 # Tampermonkey
-Tamper Monkey Scripts fo MCI
+Tamper Monkey Scripts for MCI
