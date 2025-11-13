@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MCI Master Menu
 // @namespace    mci-tools
-// @version      4.1
+// @version      4.2
 // @description  Slide-out toolbox (QQ / Erie / NatGen) with Shadow DOM. Hover far-left to open; Alt+M toggles; Alt+Shift+M removes. Copy/Paste mapper, VIN lookup, and in-menu QQC Carrier Extractor -> QQ autofill pipeline.
 // @match        https://app.qqcatalyst.com/*
 // @match        https://*.qqcatalyst.com/*
@@ -858,8 +858,7 @@
   <div class="divider" data-label="QQC Extractor"></div>
   <div class="mci-section"><div class="mci-body">
     <div class="qqc-top-row">
-      <button class="mci-btn purple" id="mci_open_qqc">📂Open Data</button>
-      <button class="mci-btn green" id="qqc_sendqq_main">Send to QQ</button>
+      <button class="mci-btn purple" id="mci_open_qqc">📂 Get Customer Data</button>
     </div>
   </div></div>
 
@@ -895,7 +894,7 @@
       <div class="qqc-panel-header" id="qqc_panel_handle">
         <h3>QQC Carrier Extractor</h3>
         <div class="qqc-head-actions">
-          <button class="mci-inline-btn" id="qqc_overlay_send">Send to QQ</button>
+          <button class="mci-inline-btn, mci-btn green" id="qqc_overlay_send">Send to QQ</button>
           <button class="qqc-close-btn" id="qqc_overlay_close">X</button>
         </div>
       </div>
@@ -1951,8 +1950,8 @@
           <div class="qqc-row">
             <label>Contact Type</label>
             <select id="qqc_ct">
-              <option>Customers</option>
               <option>Prospects</option>
+              <option>Customers</option>
             </select>
           </div>
           <div class="qqc-row">
@@ -2052,7 +2051,7 @@
                 primaryEmail: get('#qqc_email').toLowerCase(),
                 dob: get('#qqc_dob'),
                 ein: get('#qqc_ein'),
-                contactType: qs('#qqc_ct')?.value || 'Customers',
+                contactType: qs('#qqc_ct')?.value || 'Prospects',
                 customerType: (qs('#qqc_cust')?.value) || (get('#qqc_biz') ? 'Commercial' : 'Personal'),
                 status: 'Active',
                 address: { line1: get('#qqc_addr1'), line2: get('#qqc_addr2'), city: get('#qqc_city'), state: get('#qqc_state'), zip: get('#qqc_zip') }
@@ -2075,7 +2074,7 @@
             set('#qqc_city', p.address?.city);
             set('#qqc_state', p.address?.state);
             set('#qqc_zip', p.address?.zip);
-            const ct = qs('#qqc_ct'); if (ct) ct.value = p.contactType || 'Customers';
+            const ct = qs('#qqc_ct'); if (ct) ct.value = p.contactType || 'Prospects';
             const cu = qs('#qqc_cust'); if (cu) cu.value = p.customerType || (p.businessName ? 'Commercial' : 'Personal');
         }
 
@@ -2430,7 +2429,7 @@
             writeUI({
                 firstName: '', middleName: '', lastName: '', suffix: '',
                 businessName: '', primaryPhone: '', phoneType: '', primaryEmail: '', dob: '', ein: '',
-                contactType: 'Customers', customerType: 'Personal',
+                contactType: 'Prospects', customerType: 'Personal',
                 address: { line1: '', line2: '', city: '', state: '', zip: '' }
             });
             status('Cleared.');
@@ -2573,7 +2572,7 @@
         await waitForSelector('#txtFirst', { root: pop, timeout: 8000, interval: 100 });
         hudInfo('Filling popup...');
 
-        selectByText(pop.querySelector('#selContactType'), payload.contactType || 'Customers');
+        selectByText(pop.querySelector('#selContactType'), payload.contactType || 'Prospects');
         const custTypeSel = pop.querySelector('#selCustomerType select, #selCustomerType .sel-sub-type, select[name="selCustomerType"]');
         selectByText(custTypeSel, payload.customerType || (payload.businessName ? 'Commercial' : 'Personal'));
         selectByText(pop.querySelector('#selCurrStat'), payload.status || 'Active');
