@@ -1,4 +1,7 @@
 // ==UserScript==
+// MCI internal tooling
+// Copyright (c) 2025 Middle Creek Insurance. All rights reserved.
+// Not authorized for redistribution or resale.
 // @name         MCI Nav Brand + Blue Ribbon (QQCatalyst)
 // @namespace    mci-tools
 // @version      2.2
@@ -175,3 +178,4 @@
   });
 
 })();
+
