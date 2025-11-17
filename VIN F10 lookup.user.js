@@ -1,4 +1,7 @@
 // ==UserScript==
+// MCI internal tooling
+// Copyright (c) 2025 Middle Creek Insurance. All rights reserved.
+// Not authorized for redistribution or resale.
 // @name         VIN F10 lookup
 // @namespace    mci-tools
 // @version      1.32
@@ -214,6 +217,7 @@
   }, true);
 
 })();
+
 
 
 
