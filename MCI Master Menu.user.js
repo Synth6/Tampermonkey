@@ -20,6 +20,8 @@
 // @grant        GM_getValue
 // @grant        GM_setClipboard
 // @grant        unsafeWindow
+// @updateURL    https://raw.githubusercontent.com/Synth6/Tampermonkey/main/MCI%20Master%20Menu.user.js
+// @downloadURL  https://raw.githubusercontent.com/Synth6/Tampermonkey/main/MCI%20Master%20Menu.user.js
 // ==/UserScript==
 
 (function () {
@@ -1750,5 +1752,6 @@ function runFaxEnhancer() {
         try { runFaxEnhancer(); }
         catch (e) { console.warn('Fax enhancer error:', e); }
     }
+
 
 })();
