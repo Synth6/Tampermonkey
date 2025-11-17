@@ -1,4 +1,7 @@
 // ==UserScript==
+// MCI internal tooling
+// Copyright (c) 2025 Middle Creek Insurance. All rights reserved.
+// Not authorized for redistribution or resale.
 // @name         QQC Carrier Extractor
 // @namespace    qqc-tools
 // @version      1.3
@@ -1767,3 +1770,4 @@
     } catch {}
   })();
 })();
+
