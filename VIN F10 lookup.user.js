@@ -14,6 +14,8 @@
 // @run-at       document-start
 // @allFrames    true
 // @grant        none
+// @updateURL    https://raw.githubusercontent.com/Synth6/Tampermonkey/main/VIN%20F10%20lookup.user.js
+// @downloadURL  https://raw.githubusercontent.com/Synth6/Tampermonkey/main/VIN%20F10%20lookup.user.js
 // ==/UserScript==
 
 (function() {
@@ -210,4 +212,5 @@
 
     toast("No 17-char VIN found (copy it, then press F10).", false);
   }, true);
+
 })();
