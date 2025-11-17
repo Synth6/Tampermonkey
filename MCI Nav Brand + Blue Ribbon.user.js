@@ -8,6 +8,8 @@
 // @run-at       document-idle
 // @allFrames    true
 // @grant        GM_addStyle
+// @updateURL    https://raw.githubusercontent.com/Synth6/Tampermonkey/main/MCI%20Nav%20Brand%20+%20Blue%20Ribbon.user.js
+// @downloadURL  https://raw.githubusercontent.com/Synth6/Tampermonkey/main/MCI%20Nav%20Brand%20+%20Blue%20Ribbon.user.js
 // ==/UserScript==
 
 (() => {
@@ -171,4 +173,5 @@
       e.preventDefault();
     }
   });
+
 })();
