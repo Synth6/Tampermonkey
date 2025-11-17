@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VIN F10 lookup
 // @namespace    mci-tools
-// @version      1.3
+// @version      1.31
 // @description  Press F10 to open NHTSA VIN Decoder. Prefers clipboard; also works with selection, inputs, hover, URL. PDF/local files get a paste-prompt fallback.
 // @match        https://app.qqcatalyst.com/*
 // @match        https://*.qqcatalyst.com/*
@@ -214,3 +214,4 @@
   }, true);
 
 })();
+
