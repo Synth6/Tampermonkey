@@ -1,7 +1,7 @@
 // ==UserScript==
-// @name         QQC Carrier Extractor + QQ Autofill (Combined, Draggable)
+// @name         QQC Carrier Extractor
 // @namespace    qqc-tools
-// @version      1.2
+// @version      1.3
 // @description  Extract from NatGen/Erie and autofill QQ Catalyst. Alt+Q: Extractor. Alt+P: Autofill. Shared Save/Load.
 // @match        https://natgenagency.com/*
 // @match        https://*.natgenagency.com/*
@@ -9,16 +9,20 @@
 // @match        https://*.agentexchange.com/*
 // @match        https://customerdatamanagement.agentexchange.com/*
 // @match        https://*.qqcatalyst.com/*
+// @match        https://natgen.beyondfloods.com/*
+// @match        https://nationalgeneral.torrentflood.com/*
 // @all-frames   true
 // @run-at       document-idle
 // @grant        GM_setValue
 // @grant        GM_getValue
 // @grant        GM_setClipboard
+// @grant        unsafeWindow
 // ==/UserScript==
 
 (function () {
   'use strict';
 
+  const PAGE_WINDOW = typeof unsafeWindow !== 'undefined' ? unsafeWindow : window;
   const STORAGE_KEY = 'QQC_PAYLOAD_V2';
   const PENDING_KEY = 'QQC_PENDING_V1';
   const QQ_CONTACTS_URL = 'https://app.qqcatalyst.com/Contacts/Customer/Index';
@@ -26,10 +30,47 @@
   // State
   let extractorPanel = null;
   let pastePanel = null;
+  let extractorHost = null;
+  let pasteHost = null;
   let lastExtracted = null; // preserves full detected payload (incl. additionalContacts)
+
+  function closeExtractorPanel() {
+    if (extractorHost) {
+      extractorHost.remove();
+      extractorHost = null;
+    }
+    extractorPanel = null;
+  }
+
+  function closePastePanel() {
+    if (pasteHost) {
+      pasteHost.remove();
+      pasteHost = null;
+    }
+    pastePanel = null;
+  }
 
   // ---------- Lightweight HUD (QQ visual status) ----------
   let hudEl = null, hudTxt = null, hudIco = null, hudHideTid = null;
+  function clearHudHideTimer() {
+    if (hudHideTid) {
+      clearTimeout(hudHideTid);
+      hudHideTid = null;
+    }
+  }
+  function hideHud() {
+    clearHudHideTimer();
+    try { hudEl && hudEl.remove(); } catch {}
+    hudEl = null;
+    hudIco = null;
+    hudTxt = null;
+  }
+  function scheduleHudHide(ms) {
+    clearHudHideTimer();
+    if (ms > 0) {
+      hudHideTid = setTimeout(hideHud, ms);
+    }
+  }
   function onQQ() { return /qqcatalyst\.com$/i.test(location.hostname); }
   function ensureHudStyles() {
     if (document.getElementById('qqc-hud-styles')) return;
@@ -51,15 +92,26 @@
     const txt = document.createElement('span');
     txt.id = 'qqc-hud-txt';
     txt.textContent = 'Working...';
-    el.appendChild(ico); el.appendChild(txt);
+    const closeBtn = document.createElement('button');
+    closeBtn.type = 'button';
+    closeBtn.id = 'qqc-hud-close';
+    closeBtn.textContent = '×';
+    closeBtn.setAttribute('aria-label', 'Dismiss QQC status');
+    closeBtn.style.cssText = 'margin-left:6px;background:transparent;border:none;color:#9ca3af;font-size:14px;line-height:1;cursor:pointer;padding:0 4px;';
+    closeBtn.addEventListener('click', (ev) => {
+      ev.preventDefault();
+      ev.stopPropagation();
+      hideHud();
+    });
+    el.appendChild(ico); el.appendChild(txt); el.appendChild(closeBtn);
     document.body.appendChild(el);
     hudEl = el; hudIco = ico; hudTxt = txt; return el;
   }
-  function hudInfo(msg){ if(!onQQ()) return; ensureHud(); if(hudTxt) hudTxt.textContent = msg || 'Working...'; if(hudIco){ hudIco.style.animation='qqcspin .8s linear infinite'; hudIco.style.borderColor='#fff'; hudIco.style.borderRightColor='transparent'; hudIco.textContent=''; } if(hudHideTid){ clearTimeout(hudHideTid); hudHideTid=null; } }
+  function hudInfo(msg){ if(!onQQ()) return; ensureHud(); if(hudTxt) hudTxt.textContent = msg || 'Working...'; if(hudIco){ hudIco.style.animation='qqcspin .8s linear infinite'; hudIco.style.borderColor='#fff'; hudIco.style.borderRightColor='transparent'; hudIco.textContent=''; } clearHudHideTimer(); }
   function hudOk(msg){ if(!onQQ()) return; ensureHud(); if(hudTxt) hudTxt.textContent = msg || 'Done'; if(hudIco){ hudIco.style.animation=''; hudIco.style.border=''; hudIco.style.width='auto'; hudIco.style.height='auto'; hudIco.textContent='✔'; hudIco.style.color='#10b981'; }
-    if(hudHideTid) clearTimeout(hudHideTid); hudHideTid = setTimeout(()=>{ try{ hudEl && hudEl.remove(); }catch{} hudEl=null; hudIco=null; hudTxt=null; hudHideTid=null; }, 3000);
+    scheduleHudHide(3000);
   }
-  function hudError(msg){ if(!onQQ()) return; ensureHud(); if(hudTxt) hudTxt.textContent = msg || 'Error'; if(hudIco){ hudIco.style.animation=''; hudIco.style.border=''; hudIco.style.width='auto'; hudIco.style.height='auto'; hudIco.textContent='✖'; hudIco.style.color='#ef4444'; } if(hudHideTid){ clearTimeout(hudHideTid); hudHideTid=null; } }
+  function hudError(msg){ if(!onQQ()) return; ensureHud(); if(hudTxt) hudTxt.textContent = msg || 'Error'; if(hudIco){ hudIco.style.animation=''; hudIco.style.border=''; hudIco.style.width='auto'; hudIco.style.height='auto'; hudIco.textContent='✖'; hudIco.style.color='#ef4444'; } scheduleHudHide(5000); }
 
   // ---------- Shared Utils ----------
   const S = sel => document.querySelector(sel);
@@ -122,6 +174,97 @@
     return out;
   }
 
+  function cleanPlaceholderString(value) {
+    if (typeof value !== 'string') return value;
+    const trimmed = value.trim();
+    if (!trimmed) return '';
+    const normalized = trimmed.replace(/[^a-z]/gi, '').toLowerCase();
+    if (!normalized) return trimmed;
+    if (normalized === 'na' || normalized === 'none' || normalized === 'notapplicable' || normalized === 'notavailable') {
+      return '';
+    }
+    return trimmed;
+  }
+
+  function sanitizePayloadObject(data) {
+    if (data == null) return data;
+    if (typeof data === 'string') return cleanPlaceholderString(data);
+    if (Array.isArray(data)) return data.map(item => sanitizePayloadObject(item));
+    if (typeof data === 'object') {
+      for (const key of Object.keys(data)) {
+        data[key] = sanitizePayloadObject(data[key]);
+      }
+    }
+    return data;
+  }
+
+  function hasPossibleDuplicateWarning(root = document) {
+    return Array.from(root.querySelectorAll('.title, .modal-title, .dialog-title, .warning, .section-title'))
+      .some(el => /possible duplicate/i.test((el.textContent || '').trim()));
+  }
+
+  async function waitForPossibleDuplicateWarning(timeout = 2500, interval = 200) {
+    const end = Date.now() + timeout;
+    while (Date.now() < end) {
+      if (hasPossibleDuplicateWarning()) return true;
+      await new Promise(r => setTimeout(r, interval));
+    }
+    return hasPossibleDuplicateWarning();
+  }
+
+  function noteTextForPayload(payload) {
+    if (!payload) return '';
+    const carrier = (payload.carrier || '').toLowerCase();
+    const sourceUrl = (payload.sourceUrl || '').toLowerCase();
+    if (carrier.includes('torrentflood') || sourceUrl.includes('nationalgeneral.torrentflood.com')) {
+      return 'NFIP & Excess Floods';
+    }
+    if (carrier.includes('beyondfloods') || sourceUrl.includes('natgen.beyondfloods.com')) {
+      return 'Beyond Floods';
+    }
+    return '';
+  }
+
+  async function clickSaveAllChanges() {
+    const btn = document.querySelector('.submit.section_saveall');
+    if (!btn) return false;
+    try { btn.scrollIntoView({ block: 'center' }); } catch {}
+    btn.click();
+    const saving = document.querySelector('.section_saving');
+    if (saving) {
+      for (let i = 0; i < 30; i++) {
+        if (saving.style.display === 'none' || saving.classList.contains('hide')) break;
+        await new Promise(r => setTimeout(r, 150));
+      }
+    } else {
+      await new Promise(r => setTimeout(r, 350));
+    }
+    return true;
+  }
+
+  async function addCarrierNoteIfNeeded(payload) {
+    const noteText = noteTextForPayload(payload);
+    if (!noteText) return false;
+    const trigger = document.querySelector('button.button.AddNote, .button.AddNote');
+    if (!trigger) return false;
+    try { trigger.scrollIntoView({ block: 'center' }); } catch {}
+    trigger.click();
+    const popup = await waitForSelector('#div-add-note', { timeout: 10000, interval: 200 });
+    if (!popup) return false;
+    const textarea = await waitForSelector('#txtNote', { root: popup, timeout: 8000, interval: 150 });
+    if (!textarea) return false;
+    textarea.value = noteText;
+    textarea.dispatchEvent(new Event('input', { bubbles: true }));
+    textarea.dispatchEvent(new Event('change', { bubbles: true }));
+    const addBtn = popup.querySelector('.add-note-button');
+    if (addBtn) {
+      addBtn.classList.remove('disable');
+      addBtn.click();
+      return true;
+    }
+    return false;
+  }
+
   // ---------- Draggable ----------
   function makeDraggable(container, handle, opts={}) {
     let dragging=false, ox=0, oy=0;
@@ -164,12 +307,23 @@
     setTimeout(()=> s.textContent = '', 5000);
   }
   function buildExtractorPanel() {
-    if (extractorPanel) return extractorPanel;
-    const el = document.createElement('div');
-    el.style.cssText = 'position:fixed;right:16px;bottom:16px;width:405px;z-index:2147483647;background:#729cf7;color:#000;border:1px solid #374151;border-radius:8px;font:12px system-ui;box-shadow:0 8px 24px rgba(0,0,0,.35)';
-    el.innerHTML = `
+    if (extractorPanel && extractorHost?.isConnected) return extractorPanel;
+    closeExtractorPanel();
+    extractorHost = document.createElement('div');
+    extractorHost.id = '__qqc_extractor_host';
+    extractorHost.style.cssText = 'all:initial;position:fixed;right:16px;bottom:16px;z-index:2147483647;';
+    extractorHost.attachShadow({ mode: 'open' });
+    document.documentElement.appendChild(extractorHost);
+    const shadow = extractorHost.shadowRoot;
+    shadow.innerHTML = `
+      <style>
+        :host{ all:initial; }
+        *{ box-sizing:border-box; font-family:system-ui,Segoe UI,Arial,sans-serif; }
+        button,select,input,textarea{ font:inherit; }
+      </style>
+      <div id="qqc-extractor-panel" style="width:405px;background:#729cf7;color:#000;border:1px solid #374151;border-radius:8px;font:12px system-ui;box-shadow:0 8px 24px rgba(0,0,0,.35)">
       <div id="qqc-header-ex" style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:#758cad;border-bottom:1px solid #374151;border-radius:8px 8px 0 0;gap:8px;">
-        <strong>Carrier -> QQC</strong>
+        <button id="qqc-save" style="background:#10b981;border:none;color:#062026;padding:6px 8px;border-radius:6px;cursor:pointer">Send to QQ Catalyst</button>
         <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
           <label style="color:#fff;font-size:11px;">Contact</label>
           <select id="qqc-ct-ex" style="height:22px;">
@@ -209,15 +363,16 @@
         </div>
         <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
           <button id="qqc-detect" style="background:#2563eb;border:none;color:#fff;padding:6px 8px;border-radius:6px;cursor:pointer">Auto Detect</button>
-          <button id="qqc-save" style="background:#10b981;border:none;color:#062026;padding:6px 8px;border-radius:6px;cursor:pointer">Send to QQ</button>
-          <button id="qqc-copy" style="background:#2563eb;border:none;color:#fff;padding:6px 8px;border-radius:6px;cursor:pointer">Copy JSON</button>
+          <button id="qqc-save" style="background:#10b981;border:none;color:#062026;padding:6px 8px;border-radius:6px;cursor:pointer;display:none">Send to QQ</button>
+          <button id="qqc-copy" style="background:#2563eb;border:none;color:#fff;padding:6px 8px;border-radius:6px;cursor:pointer;display:none">Copy JSON</button>
         </div>
         <textarea id="qqc-json" placeholder="Payload (view/edit)" style="width:100%;height:140px;margin-top:8px"></textarea>
       </div>
+      </div>
     `;
-    el.querySelector('#qqc-close').onclick = () => { el.remove(); extractorPanel = null; };
-    document.body.appendChild(el);
+    const el = shadow.getElementById('qqc-extractor-panel');
     extractorPanel = el;
+    el.querySelector('#qqc-close')?.addEventListener('click', closeExtractorPanel);
     // Fix any mojibake in header text and close label
     try {
       const htxt = extractorPanel.querySelector('#qqc-header-ex strong');
@@ -228,7 +383,7 @@
     // Make entire header draggable, but ignore clicks on the close button
     const headerHandle = extractorPanel.querySelector('#qqc-header-ex');
     if (headerHandle) {
-      makeDraggable(extractorPanel, headerHandle, { exclude: '#qqc-close' });
+      makeDraggable(extractorHost, headerHandle, { exclude: '#qqc-close' });
     }
     // Move Contact/Customer selectors out of header into own row below header
     try {
@@ -279,7 +434,7 @@
   }
   function extractorReadUI() {
     const get = id => extractorPanel.querySelector(id).value.trim();
-    return {
+    return sanitizePayloadObject({
       carrier: location.hostname, sourceUrl: location.href,
       firstName: toNameCase(get('#qqc-first')), middleName: get('#qqc-middle'), lastName: toNameCase(get('#qqc-last')), suffix: get('#qqc-suffix'),
       businessName: get('#qqc-biz'),
@@ -291,7 +446,7 @@
       customerType: get('#qqc-biz') ? 'Commercial' : 'Personal',
       status: 'Active',
       address: { line1: get('#qqc-addr1'), line2: get('#qqc-addr2'), city: get('#qqc-city'), state: get('#qqc-state'), zip: get('#qqc-zip') }
-    };
+    });
   }
   function extractorSetUI(p) {
     const set = (id, v) => { extractorPanel.querySelector(id).value = v || ''; };
@@ -311,6 +466,197 @@
     set('#qqc-state', p.address?.state);
     set('#qqc-zip', p.address?.zip);
     const box = extractorPanel.querySelector('#qqc-json'); if (box) box.value = JSON.stringify(p, null, 2);
+  }
+
+  // ---------- NFIP / National General TorrentFlood ----------
+  function isNFIPInsuredPanel() {
+    return /torrentflood\.com$/i.test(location.hostname) &&
+           !!document.getElementById('InsuredInformationPanel');
+  }
+
+  async function extractNFIPInsuredPanel() {
+    const panel = await waitFor(() => document.getElementById('InsuredInformationPanel'), { timeout: 8000, interval: 150 });
+    const root = panel || document;
+    await waitFor(() => {
+      const span = root.querySelector('.display_value_Insured1_DisplayName');
+      return span && span.textContent.trim() ? span : null;
+    }, { timeout: 6000, interval: 150 });
+    const getInput = sel => (root.querySelector(sel)?.value || '').trim();
+    const getDisplay = sel => (root.querySelector(sel)?.textContent || '').trim();
+
+    // --- Name (use inputs if available, fall back to display span) ---
+    let firstName = getInput('#InlinePolicyUpdateView_Insured1_FirstName');
+    let lastName  = getInput('#InlinePolicyUpdateView_Insured1_LastName');
+
+    if (!firstName || !lastName) {
+      const displayName = getDisplay('.display_value_Insured1_DisplayName');
+      if (displayName) {
+        const parts = displayName.split(/\s+/).filter(Boolean);
+        firstName = firstName || parts[0] || '';
+        if (!lastName && parts.length > 1) {
+          lastName = parts.slice(1).join(' ');
+        }
+      }
+    }
+
+    // --- Email ---
+    let primaryEmail =
+      getDisplay('.display_value_Insured1_EMail') ||
+      getInput('#InlinePolicyUpdateView_Insured1_EMail');
+
+    // --- Phone: prefer Cell, then Home, then Work ---
+    let phoneRaw =
+      getDisplay('.display_value_Insured1_PhoneCell') ||
+      getDisplay('.display_value_Insured1_PhoneHome') ||
+      getDisplay('.display_value_Insured1_PhoneWork') ||
+      getInput('#InlinePolicyUpdateView_Insured1_PhoneCell') ||
+      getInput('#InlinePolicyUpdateView_Insured1_PhoneHome') ||
+      getInput('#InlinePolicyUpdateView_Insured1_PhoneWork');
+
+    const digits = (phoneRaw || '').replace(/[^\d]/g, '');
+    const primaryPhone = digits;
+    const phoneType = formatPhone(primaryPhone);
+
+    // --- Mailing address ---
+    let line1 = '', line2 = '', city = '', state = '', zip = '';
+
+    // Easiest: use the display UL
+    const addrUl = root.querySelector('#UpdateMailingAddressRegion ul.addressLabelView');
+    if (addrUl) {
+      const lines = Array.from(addrUl.querySelectorAll('li'))
+        .map(li => (li.textContent || '').trim())
+        .filter(Boolean);
+
+      if (lines[0]) line1 = lines[0]; // "1921 SANDHURST DR"
+
+      if (lines[1]) {
+        // "CHARLOTTE, NC 28205"
+        const csz = parseCityStateZip(lines[1]);
+        city  = csz.city;
+        state = csz.state;
+        zip   = csz.zip;
+      }
+    } else {
+      // Fallback to the editable fields if the UL isn't there
+      line1 = getInput('#InlinePolicyUpdateView_MailingAddress_Address1');
+      line2 = getInput('#InlinePolicyUpdateView_MailingAddress_Address2');
+      city  = getInput('#InlinePolicyUpdateView_MailingAddress_City');
+
+      // State: first two letters of the selected option text ("NC - NORTH CAROLINA")
+      const stateSel = root.querySelector('#InlinePolicyUpdateView_MailingAddress_State');
+      if (stateSel) {
+        const opt = stateSel.selectedOptions?.[0] || stateSel.options[stateSel.selectedIndex];
+        if (opt && opt.textContent) {
+          const t = opt.textContent.trim();
+          const m = t.match(/^([A-Z]{2})\s*-/);
+          if (m) state = m[1];
+        }
+      }
+
+      zip =
+        getInput('#InlinePolicyUpdateView_MailingAddress_ZipPostalCode') ||
+        getInput('.USZipCode');
+    }
+
+    const additionalContacts = [];
+    ['2','3','4'].forEach(idx => {
+      const name = getDisplay(`.display_value_Insured${idx}_DisplayName`);
+      if (name && !/^\s*(n\/a|na)$/i.test(name)) {
+        const parts = name.split(/\s+/).filter(Boolean);
+        additionalContacts.push({
+          firstName: toNameCase(parts[0] || ''),
+          middleName: '',
+          lastName: toNameCase(parts.slice(1).join(' ')),
+          relationship: 'Additional Insured'
+        });
+      }
+    });
+
+    return {
+      carrier: 'NFIP-TorrentFlood',
+      sourceUrl: location.href,
+      firstName,
+      lastName,
+      primaryPhone,
+      phoneType,
+      primaryEmail,
+      contactType: 'Customers',
+      customerType: 'Personal',
+      address: { line1, line2, city, state, zip },
+      additionalContacts: additionalContacts.length ? additionalContacts : undefined
+    };
+  }
+
+  // ---------- Beyond Floods (natgen.beyondfloods.com) ----------
+  function isBeyondFloodsSummary() {
+    return /natgen\.beyondfloods\.com$/i.test(location.hostname) &&
+           !!document.querySelector('.col-xs-12.col-md-8.col-lg-8 table.table.table-bordered');
+  }
+
+  function extractBeyondFloodsSummary() {
+    const root = document.querySelector('.col-xs-12.col-md-8.col-lg-8') || document;
+    const rows = Array.from(root.querySelectorAll('table.table.table-bordered tr'));
+
+    const getVal = (label) => {
+      const row = rows.find(r => {
+        const th = r.querySelector('th');
+        return th && (th.textContent || '').trim().toLowerCase().startsWith(label.toLowerCase());
+      });
+      if (!row) return '';
+      const td = row.querySelector('td');
+      return (td?.textContent || '').trim();
+    };
+
+    // Name
+    const rawName = getVal('Customer Name');
+    const nameParts = rawName.split(/\s+/).filter(Boolean);
+    const firstName = nameParts[0] || '';
+    const lastName  = nameParts.slice(1).join(' ') || '';
+
+    // Email
+    const primaryEmail = getVal('Customer Email');
+
+    // Phone
+    const phoneRaw     = getVal('Customer Phone');
+    const primaryPhone = phoneRaw.replace(/[^\d]/g, '');
+    const phoneDisplay = formatPhone(primaryPhone);
+
+    // Insured Dwelling Address
+    let line1 = '', city = '', state = '', zip = '';
+
+    const addrRow = rows.find(r => {
+      const th = r.querySelector('th');
+      return th && /Insured Dwelling Address/i.test((th.textContent || '').trim());
+    });
+
+    if (addrRow) {
+      const divs = Array.from(addrRow.querySelectorAll('td div'))
+        .map(d => (d.textContent || '').trim())
+        .filter(Boolean);
+
+      if (divs.length > 0) {
+        line1 = divs[0]; // street
+      }
+      if (divs.length > 1) {
+        const csz = parseCityStateZip(divs[1]);
+        city  = csz.city;
+        state = csz.state;
+        zip   = csz.zip;
+      }
+    }
+
+    return {
+      carrier: 'BeyondFloods',
+      sourceUrl: location.href,
+      firstName,
+      lastName,
+      primaryPhone,
+      phoneType: phoneDisplay,
+      primaryEmail,
+      contactType: 'Customers',
+      customerType: 'Personal',
+      address: { line1, line2: '', city, state, zip }
+    };
   }
 
   // ---------- Extractors (NatGen + Erie) ----------
@@ -660,22 +1006,25 @@
       address: { line1, line2:'', city, state, zip }
     };
   }
-  async function autoDetect() {
+
+    async function autoDetect() {
     if (hasErieProfileEmailAnchor()) return await extractErieProfile();
     if (isNatGenNamedInsured()) return extractNatGenNamedInsured();
     if (isNatGenSummary()) return extractNatGenSummary();
     if (isEriePLW()) return await extractEriePLW();
     if (isErieProfile()) return await extractErieProfile();
     if (isErieMendix()) return await extractErieMendix();
+    if (isNFIPInsuredPanel()) return await extractNFIPInsuredPanel();
+
     return { carrier: location.hostname, sourceUrl: location.href, address:{} };
-  }
+    }
 
   function mountExtractorPanel() {
     const el = buildExtractorPanel();
 
     el.querySelector('#qqc-detect').onclick = async () => {
       try {
-        const p = await autoDetect();
+        const p = sanitizePayloadObject((await autoDetect()) || {});
         lastExtracted = p;
         try { await GM_setValue(STORAGE_KEY, p); } catch {}
         extractorSetUI(p);
@@ -693,7 +1042,7 @@
     // Auto-run detection on panel open
     (async () => {
       try {
-        const p = await autoDetect();
+        const p = sanitizePayloadObject((await autoDetect()) || {});
         lastExtracted = p;
         try { await GM_setValue(STORAGE_KEY, p); } catch {}
         extractorSetUI(p);
@@ -717,13 +1066,14 @@
         if (ct) uiPayload.contactType = ct.value;
         if (cu) uiPayload.customerType = cu.value;
         // merge UI-overrides onto last extracted so we keep additionalContacts and other parsed fields
-        const payload = Object.assign({}, lastExtracted || {}, uiPayload);
+        const payload = sanitizePayloadObject(Object.assign({}, lastExtracted || {}, uiPayload));
         await GM_setValue(STORAGE_KEY, payload);
         // mark pending to open popup on QQ and fill
         await GM_setValue(PENDING_KEY, { payload, ts: Date.now(), stage: 'popup' });
         extractorStatus('Sending to QQ...');
         // Navigate to QQ Contacts page (same tab)
-        try { window.open(QQ_CONTACTS_URL, '_self'); } catch { location.href = QQ_CONTACTS_URL; }
+        try { window.open(QQ_CONTACTS_URL, '_blank', 'noopener'); }
+        catch { window.open(QQ_CONTACTS_URL, '_blank'); }
       } catch (e) {
         console.error(e);
         extractorStatus('Send failed (invalid JSON?).');
@@ -745,10 +1095,21 @@
     setTimeout(()=> s.textContent = '', 6000);
   }
   function buildPastePanel() {
-    if (pastePanel) return pastePanel;
-    const el = document.createElement('div');
-    el.style.cssText = 'position:fixed;left:16px;bottom:16px;width:360px;z-index:2147483647;background:#729cf7;color:#000;border:1px solid #374151;border-radius:8px;font:12px system-ui;box-shadow:0 8px 24px rgba(0,0,0,.35)';
-    el.innerHTML = `
+    if (pastePanel && pasteHost?.isConnected) return pastePanel;
+    closePastePanel();
+    pasteHost = document.createElement('div');
+    pasteHost.id = '__qqc_paste_host';
+    pasteHost.style.cssText = 'all:initial;position:fixed;left:16px;bottom:16px;z-index:2147483647;';
+    pasteHost.attachShadow({ mode: 'open' });
+    document.documentElement.appendChild(pasteHost);
+    const shadow = pasteHost.shadowRoot;
+    shadow.innerHTML = `
+      <style>
+        :host{ all:initial; }
+        *{ box-sizing:border-box; font-family:system-ui,Segoe UI,Arial,sans-serif; }
+        button,select,input,textarea{ font:inherit; }
+      </style>
+      <div id="qqc-paste-panel" style="width:360px;background:#729cf7;color:#000;border:1px solid #374151;border-radius:8px;font:12px system-ui;box-shadow:0 8px 24px rgba(0,0,0,.35)">
       <div id="qqc-header-pa" style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:#758cad;border-bottom:1px solid #374151;border-radius:8px 8px 0 0;">
         <strong>QQC Autofill</strong>
         <div style="display:flex;gap:6px;align-items:center;">
@@ -780,16 +1141,17 @@
         <textarea id="qqc-json" placeholder="Payload JSON" style="width:100%;height:140px;"></textarea>
         <div style="margin-top:8px;color:#000">Hotkeys: Alt+P toggle panel.</div>
       </div>
+      </div>
     `;
-    el.querySelector('#qqc-close').onclick = () => { el.remove(); pastePanel=null; };
-    document.body.appendChild(el);
+    const el = shadow.getElementById('qqc-paste-panel');
     pastePanel = el;
+    el.querySelector('#qqc-close')?.addEventListener('click', closePastePanel);
     // Fix mojibake in close text if present
     try { const c = pastePanel.querySelector('#qqc-close'); if (c) c.textContent = 'X'; } catch {}
     // Make entire paste header draggable, excluding its close button
     const pasteHeader = pastePanel.querySelector('#qqc-header-pa');
     if (pasteHeader) {
-      makeDraggable(pastePanel, pasteHeader, { exclude: '#qqc-close' });
+      makeDraggable(pasteHost, pasteHeader, { exclude: '#qqc-close' });
     }
     // Ensure selector defaults when no payload is loaded
     try {
@@ -806,11 +1168,11 @@
   async function getPayloadFromUI_Storage_Clipboard() {
     const box = pastePanel.querySelector('#qqc-json').value.trim();
     if (box) {
-      const p = parsePayload(box);
+      const p = sanitizePayloadObject(parsePayload(box));
       if (p) return p;
       pasteStatus('Invalid JSON in box.'); return null;
     }
-    const stored = await GM_getValue(STORAGE_KEY);
+    const stored = sanitizePayloadObject(await GM_getValue(STORAGE_KEY));
     if (stored) {
       pastePanel.querySelector('#qqc-json').value = JSON.stringify(stored, null, 2);
       // Reflect into selectors
@@ -821,7 +1183,7 @@
     }
     try {
       const txt = await navigator.clipboard.readText();
-      const p = parsePayload(txt);
+      const p = sanitizePayloadObject(parsePayload(txt));
       if (p) {
         pastePanel.querySelector('#qqc-json').value = JSON.stringify(p, null, 2);
         setSelectToText(pastePanel.querySelector('#qqc-ct'), p.contactType || 'Customers');
@@ -931,6 +1293,15 @@
     const add = pop.querySelector('#addcontactbtn');
     if (!add) { pasteStatus('Add Contact button not found'); return false; }
     add.click();
+
+    const duplicateDetected = await waitForPossibleDuplicateWarning();
+    if (duplicateDetected) {
+      pasteStatus('Possible duplicate found. Stopping automation.');
+      hudError('Duplicate contact detected.');
+      try { await GM_setValue(PENDING_KEY, {}); } catch {}
+      return false;
+    }
+
     hudInfo('Popup submitted. Waiting for details...');
     // Persist a pending instruction to proceed with details on next page
     try { await GM_setValue(PENDING_KEY, { payload, ts: Date.now(), stage: 'details' }); } catch {}
@@ -1219,6 +1590,12 @@
 
     async function runFillDetails(payload) {
     if (!onDetailsPage()) { pasteStatus("Not on details page."); return; }
+    if (hasPossibleDuplicateWarning()) {
+      pasteStatus('Possible duplicate found. Automation halted.');
+      hudError('Duplicate contact detected.');
+      try { await GM_setValue(PENDING_KEY, {}); } catch {}
+      return;
+    }
     // Wait for Basic Contact Info section
     hudInfo('Filling Basic Contact...');
     await waitFor(() => document.querySelector("form#BasicContactInfo"), { timeout: 15000, interval: 150 });
@@ -1250,12 +1627,15 @@
     } else {
       hudError('QQC fill incomplete');
     }
+    try { await clickSaveAllChanges(); } catch {}
+    try { await addCarrierNoteIfNeeded(payload); } catch {}
+    try { await GM_setValue(PENDING_KEY, {}); } catch {}
   }
   function mountPastePanel() {
     const ui = buildPastePanel();
 
     ui.querySelector('#qqc-load').onclick = async () => {
-      const p = await GM_getValue(STORAGE_KEY);
+      const p = sanitizePayloadObject(await GM_getValue(STORAGE_KEY));
       if (!p) return pasteStatus('No stored payload.');
       ui.querySelector('#qqc-json').value = JSON.stringify(p, null, 2);
       setSelectToText(pastePanel.querySelector('#qqc-ct'), p.contactType || 'Customers');
@@ -1292,6 +1672,8 @@
         } else {
           pasteStatus('Timed out waiting for details page. Try "Fill Details Page".');
         }
+      } else {
+        pasteStatus('Stopped due to duplicate warning.');
       }
     };
 
@@ -1307,18 +1689,51 @@
   }
 
   // ---------- Hotkeys ----------
-  window.addEventListener('keydown', (e) => {
+  PAGE_WINDOW.addEventListener('keydown', (e) => {
     // Alt+Q → Extractor (primary)
     if (e.altKey && (e.key === 'q' || e.key === 'Q')) {
       e.preventDefault();
-      extractorPanel ? (extractorPanel.remove(), extractorPanel=null) : mountExtractorPanel();
+      extractorPanel ? closeExtractorPanel() : mountExtractorPanel();
       return;
     }
     // Alt+P → Paste/Autofill (legacy)
     if (e.altKey && (e.key === 'p' || e.key === 'P')) {
       e.preventDefault();
-      pastePanel ? (pastePanel.remove(), pastePanel=null) : mountPastePanel();
+      pastePanel ? closePastePanel() : mountPastePanel();
       return;
+    }
+  });
+
+  // ---------- Integration with MCI Master Menu ----------
+  // Listen for menu-triggered events so "Get Customer Data" can live in the slide-out menu
+  PAGE_WINDOW.addEventListener('mci-run-contact-mapper', (ev) => {
+    try {
+      const mode = (ev && ev.detail && ev.detail.mode) || 'auto';
+
+      // Decide what to do based on the mode / current site
+      if (mode === 'extract') {
+        // Force carrier extractor panel (Erie / NatGen, etc.)
+        extractorPanel ? closeExtractorPanel() : mountExtractorPanel();
+        return;
+      }
+
+      if (mode === 'paste') {
+        // Force QQ paste/autofill panel
+        pastePanel ? closePastePanel() : mountPastePanel();
+        return;
+      }
+
+      // mode === 'auto' (default):
+      // If we're on QQ → open paste/autofill panel
+      // Else (Erie / NatGen, etc.) → open extractor panel
+      if (/qqcatalyst\.com$/i.test(location.hostname)) {
+        pastePanel ? closePastePanel() : mountPastePanel();
+      } else {
+        extractorPanel ? closeExtractorPanel() : mountExtractorPanel();
+      }
+    } catch (e2) {
+      console.error('[MCI Contact Mapper] Error handling mci-run-contact-mapper:', e2);
+      alert('MCI Contact Mapper error – see console for details.');
     }
   });
 
@@ -1335,8 +1750,8 @@
           hudInfo('Opening popup and submitting...');
           const pop = await ensurePopupOpen();
           if (pop) {
-            await fillPopup(pending.payload);
-            // fillPopup sets stage to 'details' after clicking Add
+            const ok = await fillPopup(pending.payload);
+            if (!ok) return;
           }
           return;
         }
