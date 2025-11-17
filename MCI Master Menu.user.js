@@ -1,4 +1,7 @@
 // ==UserScript==
+// MCI internal tooling
+// Copyright (c) 2025 Middle Creek Insurance. All rights reserved.
+// Not authorized for redistribution or resale.
 // @name         MCI Master Menu
 // @namespace    mci-tools
 // @version      4.5
@@ -1755,3 +1758,4 @@ function runFaxEnhancer() {
 
 
 })();
+
