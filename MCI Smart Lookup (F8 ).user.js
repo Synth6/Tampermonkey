@@ -1,4 +1,7 @@
 // ==UserScript==
+// MCI internal tooling
+// Copyright (c) 2025 Middle Creek Insurance. All rights reserved.
+// Not authorized for redistribution or resale.
 // @name         MCI Smart Lookup (F8 Universal + Vexcel)
 // @namespace    mci-tools
 // @version      1.10
@@ -572,3 +575,4 @@ if (location.hostname === "app.vexcelgroup.com") {
 
 
 })();
+
