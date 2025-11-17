@@ -16,6 +16,8 @@
 // @grant        GM_addStyle
 // @run-at       document-idle
 // @allFrames    true
+// @updateURL    https://raw.githubusercontent.com/Synth6/Tampermonkey/main/MCI%20Smart%20Lookup%20(F8%20).user.js
+// @downloadURL  https://raw.githubusercontent.com/Synth6/Tampermonkey/main/MCI%20Smart%20Lookup%20(F8%20).user.js
 // ==/UserScript==
 (function(){
   "use strict";
@@ -567,5 +569,6 @@ if (location.hostname === "app.vexcelgroup.com") {
     try { history.replaceState(null,"", location.pathname + location.search); } catch {}
   })();
 }
+
 
 })();
