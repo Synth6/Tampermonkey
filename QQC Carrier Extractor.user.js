@@ -4,7 +4,7 @@
 // Not authorized for redistribution or resale.
 // @name         QQC Carrier Extractor
 // @namespace    qqc-tools
-// @version      1.3
+// @version      1.4
 // @description  Extract from NatGen/Erie and autofill QQ Catalyst. Alt+Q: Extractor. Alt+P: Autofill. Shared Save/Load.
 // @match        https://natgenagency.com/*
 // @match        https://*.natgenagency.com/*
@@ -65,7 +65,7 @@
   }
   function hideHud() {
     clearHudHideTimer();
-    try { hudEl && hudEl.remove(); } catch {}
+    try { hudEl && hudEl.remove(); } catch { }
     hudEl = null;
     hudIco = null;
     hudTxt = null;
@@ -112,19 +112,20 @@
     document.body.appendChild(el);
     hudEl = el; hudIco = ico; hudTxt = txt; return el;
   }
-  function hudInfo(msg){ if(!onQQ()) return; ensureHud(); if(hudTxt) hudTxt.textContent = msg || 'Working...'; if(hudIco){ hudIco.style.animation='qqcspin .8s linear infinite'; hudIco.style.borderColor='#fff'; hudIco.style.borderRightColor='transparent'; hudIco.textContent=''; } clearHudHideTimer(); }
-  function hudOk(msg){ if(!onQQ()) return; ensureHud(); if(hudTxt) hudTxt.textContent = msg || 'Done'; if(hudIco){ hudIco.style.animation=''; hudIco.style.border=''; hudIco.style.width='auto'; hudIco.style.height='auto'; hudIco.textContent='✔'; hudIco.style.color='#10b981'; }
+  function hudInfo(msg) { if (!onQQ()) return; ensureHud(); if (hudTxt) hudTxt.textContent = msg || 'Working...'; if (hudIco) { hudIco.style.animation = 'qqcspin .8s linear infinite'; hudIco.style.borderColor = '#fff'; hudIco.style.borderRightColor = 'transparent'; hudIco.textContent = ''; } clearHudHideTimer(); }
+  function hudOk(msg) {
+    if (!onQQ()) return; ensureHud(); if (hudTxt) hudTxt.textContent = msg || 'Done'; if (hudIco) { hudIco.style.animation = ''; hudIco.style.border = ''; hudIco.style.width = 'auto'; hudIco.style.height = 'auto'; hudIco.textContent = '✔'; hudIco.style.color = '#10b981'; }
     scheduleHudHide(3000);
   }
-  function hudError(msg){ if(!onQQ()) return; ensureHud(); if(hudTxt) hudTxt.textContent = msg || 'Error'; if(hudIco){ hudIco.style.animation=''; hudIco.style.border=''; hudIco.style.width='auto'; hudIco.style.height='auto'; hudIco.textContent='✖'; hudIco.style.color='#ef4444'; } scheduleHudHide(5000); }
+  function hudError(msg) { if (!onQQ()) return; ensureHud(); if (hudTxt) hudTxt.textContent = msg || 'Error'; if (hudIco) { hudIco.style.animation = ''; hudIco.style.border = ''; hudIco.style.width = 'auto'; hudIco.style.height = 'auto'; hudIco.textContent = '✖'; hudIco.style.color = '#ef4444'; } scheduleHudHide(5000); }
 
   // ---------- Shared Utils ----------
   const S = sel => document.querySelector(sel);
   const SA = sel => Array.from(document.querySelectorAll(sel));
   const T = el => (el?.textContent || '').trim();
   const V = el => (el?.value || '').trim();
-  function isVisible(el){ return !!el && el.offsetParent !== null; }
-  async function waitFor(fn, {timeout=10000, interval=100}={}) {
+  function isVisible(el) { return !!el && el.offsetParent !== null; }
+  async function waitFor(fn, { timeout = 10000, interval = 100 } = {}) {
     const start = Date.now();
     while (Date.now() - start < timeout) {
       const v = fn();
@@ -133,45 +134,45 @@
     }
     return null;
   }
-  async function waitForSelector(sel, {root=document, timeout=10000, interval=100}={}) {
+  async function waitForSelector(sel, { root = document, timeout = 10000, interval = 100 } = {}) {
     return waitFor(() => {
       const el = root.querySelector(sel);
       return (el && isVisible(el)) ? el : null;
     }, { timeout, interval });
   }
-  async function waitForText(el, predicate, opts={}) {
+  async function waitForText(el, predicate, opts = {}) {
     return waitFor(() => {
       const txt = T(el);
       return predicate(txt) ? txt : null;
     }, opts);
   }
   function parseCityStateZip(line) {
-    const m = (line||'').trim().match(/^(.+?),\s*([A-Z]{2})\s+(\d{5})(?:-\d{4})?/);
-    return m ? { city:m[1], state:m[2], zip:m[3] } : { city:'', state:'', zip:'' };
+    const m = (line || '').trim().match(/^(.+?),\s*([A-Z]{2})\s+(\d{5})(?:-\d{4})?/);
+    return m ? { city: m[1], state: m[2], zip: m[3] } : { city: '', state: '', zip: '' };
   }
-  function toMMDDYYYY(s){
+  function toMMDDYYYY(s) {
     if (!s) return '';
     const m = s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})$/);
     if (!m) return s;
-    const mm = String(m[1]).padStart(2,'0');
-    const dd = String(m[2]).padStart(2,'0');
+    const mm = String(m[1]).padStart(2, '0');
+    const dd = String(m[2]).padStart(2, '0');
     let yyyy = m[3];
-    if (yyyy.length===2) yyyy = (parseInt(yyyy,10) > 30 ? '19' : '20') + yyyy;
+    if (yyyy.length === 2) yyyy = (parseInt(yyyy, 10) > 30 ? '19' : '20') + yyyy;
     return `${mm}/${dd}/${yyyy}`;
   }
 
-  function formatPhone(digits){
-    const d = (digits||'').replace(/[^\d]/g,'');
-    if (d.length === 10) return `(${d.slice(0,3)}) ${d.slice(3,6)}-${d.slice(6)}`;
+  function formatPhone(digits) {
+    const d = (digits || '').replace(/[^\d]/g, '');
+    if (d.length === 10) return `(${d.slice(0, 3)}) ${d.slice(3, 6)}-${d.slice(6)}`;
     return digits || '';
   }
 
   // Proper-case names: capitalize first letter of each word/segment, preserve hyphens/apostrophes
-  function toNameCase(s){
+  function toNameCase(s) {
     if (!s) return '';
     const str = String(s).trim().toLowerCase();
     let out = '', upperNext = true;
-    for (let i=0; i<str.length; i++) {
+    for (let i = 0; i < str.length; i++) {
       const ch = str[i];
       if (/[a-z]/.test(ch) && upperNext) { out += ch.toUpperCase(); upperNext = false; }
       else { out += ch; upperNext = /[\s\-']/.test(ch); }
@@ -233,7 +234,7 @@
   async function clickSaveAllChanges() {
     const btn = document.querySelector('.submit.section_saveall');
     if (!btn) return false;
-    try { btn.scrollIntoView({ block: 'center' }); } catch {}
+    try { btn.scrollIntoView({ block: 'center' }); } catch { }
     btn.click();
     const saving = document.querySelector('.section_saving');
     if (saving) {
@@ -252,7 +253,7 @@
     if (!noteText) return false;
     const trigger = document.querySelector('button.button.AddNote, .button.AddNote');
     if (!trigger) return false;
-    try { trigger.scrollIntoView({ block: 'center' }); } catch {}
+    try { trigger.scrollIntoView({ block: 'center' }); } catch { }
     trigger.click();
     const popup = await waitForSelector('#div-add-note', { timeout: 10000, interval: 200 });
     if (!popup) return false;
@@ -271,8 +272,8 @@
   }
 
   // ---------- Draggable ----------
-  function makeDraggable(container, handle, opts={}) {
-    let dragging=false, ox=0, oy=0;
+  function makeDraggable(container, handle, opts = {}) {
+    let dragging = false, ox = 0, oy = 0;
     const excludeSel = opts.exclude || '';
     const onDown = (e) => {
       if (excludeSel && e.target && e.target.closest && e.target.closest(excludeSel)) {
@@ -309,7 +310,7 @@
     if (!extractorPanel) return;
     const s = extractorPanel.querySelector('#qqc-status');
     s.textContent = msg;
-    setTimeout(()=> s.textContent = '', 5000);
+    setTimeout(() => s.textContent = '', 5000);
   }
   function buildExtractorPanel() {
     if (extractorPanel && extractorHost?.isConnected) return extractorPanel;
@@ -384,7 +385,7 @@
       if (htxt) htxt.textContent = 'Carrier -> QQC';
       const cbtn = extractorPanel.querySelector('#qqc-close');
       if (cbtn) cbtn.textContent = 'X';
-    } catch {}
+    } catch { }
     // Make entire header draggable, but ignore clicks on the close button
     const headerHandle = extractorPanel.querySelector('#qqc-header-ex');
     if (headerHandle) {
@@ -426,15 +427,15 @@
       try {
         const ctDefault = extractorPanel.querySelector('#qqc-ct-ex');
         if (ctDefault) ctDefault.value = 'Prospects';
-      } catch {}
-    } catch {}
+      } catch { }
+    } catch { }
     // Hide deprecated inputs/buttons
     try {
-      extractorPanel.querySelector('#qqc-dln')?.closest('label')?.style?.setProperty('display','none','important');
-      extractorPanel.querySelector('#qqc-dlstate')?.closest('label')?.style?.setProperty('display','none','important');
-      extractorPanel.querySelector('#qqc-copy')?.style?.setProperty('display','none','important');
-      extractorPanel.querySelector('#qqc-json')?.style?.setProperty('display','none','important');
-    } catch {}
+      extractorPanel.querySelector('#qqc-dln')?.closest('label')?.style?.setProperty('display', 'none', 'important');
+      extractorPanel.querySelector('#qqc-dlstate')?.closest('label')?.style?.setProperty('display', 'none', 'important');
+      extractorPanel.querySelector('#qqc-copy')?.style?.setProperty('display', 'none', 'important');
+      extractorPanel.querySelector('#qqc-json')?.style?.setProperty('display', 'none', 'important');
+    } catch { }
     return el;
   }
   function extractorReadUI() {
@@ -476,7 +477,7 @@
   // ---------- NFIP / National General TorrentFlood ----------
   function isNFIPInsuredPanel() {
     return /torrentflood\.com$/i.test(location.hostname) &&
-           !!document.getElementById('InsuredInformationPanel');
+      !!document.getElementById('InsuredInformationPanel');
   }
 
   async function extractNFIPInsuredPanel() {
@@ -491,7 +492,7 @@
 
     // --- Name (use inputs if available, fall back to display span) ---
     let firstName = getInput('#InlinePolicyUpdateView_Insured1_FirstName');
-    let lastName  = getInput('#InlinePolicyUpdateView_Insured1_LastName');
+    let lastName = getInput('#InlinePolicyUpdateView_Insured1_LastName');
 
     if (!firstName || !lastName) {
       const displayName = getDisplay('.display_value_Insured1_DisplayName');
@@ -537,15 +538,15 @@
       if (lines[1]) {
         // "CHARLOTTE, NC 28205"
         const csz = parseCityStateZip(lines[1]);
-        city  = csz.city;
+        city = csz.city;
         state = csz.state;
-        zip   = csz.zip;
+        zip = csz.zip;
       }
     } else {
       // Fallback to the editable fields if the UL isn't there
       line1 = getInput('#InlinePolicyUpdateView_MailingAddress_Address1');
       line2 = getInput('#InlinePolicyUpdateView_MailingAddress_Address2');
-      city  = getInput('#InlinePolicyUpdateView_MailingAddress_City');
+      city = getInput('#InlinePolicyUpdateView_MailingAddress_City');
 
       // State: first two letters of the selected option text ("NC - NORTH CAROLINA")
       const stateSel = root.querySelector('#InlinePolicyUpdateView_MailingAddress_State');
@@ -564,7 +565,7 @@
     }
 
     const additionalContacts = [];
-    ['2','3','4'].forEach(idx => {
+    ['2', '3', '4'].forEach(idx => {
       const name = getDisplay(`.display_value_Insured${idx}_DisplayName`);
       if (name && !/^\s*(n\/a|na)$/i.test(name)) {
         const parts = name.split(/\s+/).filter(Boolean);
@@ -595,7 +596,7 @@
   // ---------- Beyond Floods (natgen.beyondfloods.com) ----------
   function isBeyondFloodsSummary() {
     return /natgen\.beyondfloods\.com$/i.test(location.hostname) &&
-           !!document.querySelector('.col-xs-12.col-md-8.col-lg-8 table.table.table-bordered');
+      !!document.querySelector('.col-xs-12.col-md-8.col-lg-8 table.table.table-bordered');
   }
 
   function extractBeyondFloodsSummary() {
@@ -616,13 +617,13 @@
     const rawName = getVal('Customer Name');
     const nameParts = rawName.split(/\s+/).filter(Boolean);
     const firstName = nameParts[0] || '';
-    const lastName  = nameParts.slice(1).join(' ') || '';
+    const lastName = nameParts.slice(1).join(' ') || '';
 
     // Email
     const primaryEmail = getVal('Customer Email');
 
     // Phone
-    const phoneRaw     = getVal('Customer Phone');
+    const phoneRaw = getVal('Customer Phone');
     const primaryPhone = phoneRaw.replace(/[^\d]/g, '');
     const phoneDisplay = formatPhone(primaryPhone);
 
@@ -644,9 +645,9 @@
       }
       if (divs.length > 1) {
         const csz = parseCityStateZip(divs[1]);
-        city  = csz.city;
+        city = csz.city;
         state = csz.state;
-        zip   = csz.zip;
+        zip = csz.zip;
       }
     }
 
@@ -669,7 +670,7 @@
     return /natgenagency\.com$/i.test(location.hostname) && /QuoteNamedInsured\.aspx$/i.test(location.pathname);
   }
   function extractNatGenNamedInsured() {
-    const gv = id => (S('#'+id)?.value || '').trim();
+    const gv = id => (S('#' + id)?.value || '').trim();
     const tv = sel => (S(sel)?.value || '').trim();
     const firstName = gv('ctl00_MainContent_InsuredNamed1_txtInsFirstName');
     const middleName = gv('ctl00_MainContent_InsuredNamed1_txtInsMiddleName');
@@ -678,15 +679,15 @@
     const p1 = gv('ctl00_MainContent_InsuredNamed1_ucPhonesV2_PhoneNumber1_txtPhone1');
     const p2 = gv('ctl00_MainContent_InsuredNamed1_ucPhonesV2_PhoneNumber1_txtPhone2');
     const p3 = gv('ctl00_MainContent_InsuredNamed1_ucPhonesV2_PhoneNumber1_txtPhone3');
-    const primaryPhone = (p1+p2+p3).replace(/[^\d]/g,'');
+    const primaryPhone = (p1 + p2 + p3).replace(/[^\d]/g, '');
     const phoneDisplay = (p1 && p2 && p3) ? `(${p1}) ${p2}-${p3}` : '';
     const primaryEmail = gv('ctl00_MainContent_InsuredNamed1_txtInsEmail');
     const dob = gv('ctl00_MainContent_InsuredNamed1_txtInsDOB');
     const addr1 = gv('ctl00_MainContent_InsuredNamed1_txtInsAdr');
     const addr2 = gv('ctl00_MainContent_InsuredNamed1_txtInsAdr2');
-    const city  = gv('ctl00_MainContent_InsuredNamed1_txtInsCity');
+    const city = gv('ctl00_MainContent_InsuredNamed1_txtInsCity');
     const state = tv('#ctl00_MainContent_InsuredNamed1_ddlInsState');
-    const zip   = gv('ctl00_MainContent_InsuredNamed1_txtInsZip');
+    const zip = gv('ctl00_MainContent_InsuredNamed1_txtInsZip');
     return {
       carrier: 'NatGen', sourceUrl: location.href,
       firstName, middleName, lastName, suffix,
@@ -704,13 +705,13 @@
     const lastName = rest.join(' ');
     const addr1 = T(S('#ctl00_MainContent_InsuredInfo1_lblInsAdr'));
     const csz = T(S('#ctl00_MainContent_InsuredInfo1_lblInsCityStateZip'));
-    let city='',state='',zip='';
+    let city = '', state = '', zip = '';
     const m = csz.match(/^(.+?),\s*([A-Z]{2})\s+(\d{5})(?:-\d{4})?/);
-    if (m) { city=m[1]; state=m[2]; zip=m[3]; }
+    if (m) { city = m[1]; state = m[2]; zip = m[3]; }
     const phoneRaw = T(S('#ctl00_MainContent_InsuredInfo1_lblInsPhone')); // "(919) 228 - 0924 | Cell"
     const parts = phoneRaw.split('|').map(s => s.trim());
     const phoneDisplay = (parts[0] || '').replace(/\s{2,}/g, ' ').replace(/\s-\s/g, '-');
-    const primaryPhone = phoneDisplay.replace(/[^\d]/g,'');
+    const primaryPhone = phoneDisplay.replace(/[^\d]/g, '');
     const primaryEmail = T(S('#ctl00_MainContent_InsuredInfo1_lblInsEmail'));
     return {
       carrier: 'NatGen', sourceUrl: location.href,
@@ -724,7 +725,7 @@
     return /agentexchange\.com$/i.test(location.hostname) && /\/PersonalLinesWeb\/?/i.test(location.pathname);
   }
   async function revealEriePLWDob() {
-    const isMasked = (s) => !s || s.includes('*') || (s.replace(/[^\d]/g,'').length < 6);
+    const isMasked = (s) => !s || s.includes('*') || (s.replace(/[^\d]/g, '').length < 6);
     const grabDobText = () => {
       // Prefer the DOB shown within the First Named Insured column
       const container = S('.Column-Customer') || document;
@@ -740,20 +741,20 @@
     const clickRevealNearDob = async () => {
       const container = S('.Column-Customer') || document;
       // Find a toggle button near a label containing "Date of Birth"
-      const dobBlocks = Array.from(container.querySelectorAll('.editor-block')).filter(b => /date\s*of\s*birth/i.test((b.textContent||'')));
+      const dobBlocks = Array.from(container.querySelectorAll('.editor-block')).filter(b => /date\s*of\s*birth/i.test((b.textContent || '')));
       for (const block of dobBlocks) {
         const btn = block.querySelector('.reveal-data-btn');
         if (btn && isVisible(btn)) {
           btn.click();
           // wait for unmask to apply
-          for (let i=0;i<10;i++){ await new Promise(r=>setTimeout(r,150)); const v=grabDobText(); if (!isMasked(v)) return; }
+          for (let i = 0; i < 10; i++) { await new Promise(r => setTimeout(r, 150)); const v = grabDobText(); if (!isMasked(v)) return; }
         }
       }
       // Fallback: any visible reveal button
       const any = Array.from(document.querySelectorAll('.reveal-data-btn')).find(isVisible);
       if (any) {
         any.click();
-        for (let i=0;i<10;i++){ await new Promise(r=>setTimeout(r,150)); const v=grabDobText(); if (!isMasked(v)) return; }
+        for (let i = 0; i < 10; i++) { await new Promise(r => setTimeout(r, 150)); const v = grabDobText(); if (!isMasked(v)) return; }
       }
     };
 
@@ -772,12 +773,12 @@
   function parseEriePLWPhone() {
     const ro = SA('.Column-Customer .named-insured-value').find(e => /\(\d{3}\)\s*\d{3}-\d{4}/.test(T(e)));
     if (ro) {
-      const num = T(ro).replace(/[^\d]/g,'');
+      const num = T(ro).replace(/[^\d]/g, '');
       const display = formatPhone(num);
       return { primaryPhone: num, phoneType: display };
     }
     const inp = S('#FirstNamedInsuredNumber_0');
-    const primaryPhone = inp ? V(inp).replace(/[^\d]/g,'') : '';
+    const primaryPhone = inp ? V(inp).replace(/[^\d]/g, '') : '';
     const phoneType = formatPhone(primaryPhone);
     return { primaryPhone, phoneType };
   }
@@ -791,27 +792,27 @@
     const first = V(S('#FirstNamedInsured_FirstName'));
     const middle = V(S('#FirstNamedInsured_MiddleName'));
     const last = V(S('#FirstNamedInsured_LastName'));
-    if (first && last) return { firstName:first, middleName:middle, lastName:last };
+    if (first && last) return { firstName: first, middleName: middle, lastName: last };
     const opt = S('#ddlFirstNamedInsured option:checked');
     const text = T(opt);
     if (text) {
       const parts = text.split(/\s+/);
-      return { firstName: parts[0] || '', middleName:'', lastName: parts.slice(1).join(' ') || '' };
+      return { firstName: parts[0] || '', middleName: '', lastName: parts.slice(1).join(' ') || '' };
     }
-    return { firstName:'', middleName:'', lastName:'' };
+    return { firstName: '', middleName: '', lastName: '' };
   }
   function parseEriePLWAddress() {
     const el = S('#mailing-address-text');
-    if (!el) return { line1:'', line2:'', city:'', state:'', zip:'' };
+    if (!el) return { line1: '', line2: '', city: '', state: '', zip: '' };
     const html = el.innerHTML || '';
-    const parts = html.split(/<br\s*\/?>/i).map(s => s.replace(/<[^>]*>/g,'').trim()).filter(Boolean);
+    const parts = html.split(/<br\s*\/?>/i).map(s => s.replace(/<[^>]*>/g, '').trim()).filter(Boolean);
     const line1 = parts[0] || '';
-    let city='', state='', zip='';
+    let city = '', state = '', zip = '';
     if (parts[1]) {
       const csz = parseCityStateZip(parts[1]);
       city = csz.city; state = csz.state; zip = csz.zip;
     }
-    return { line1, line2:'', city, state, zip };
+    return { line1, line2: '', city, state, zip };
   }
   function parseEriePLWSecondContact() {
     const root = S('.Column.Col2.Column-Customer') || S('#ddlSecondNamedInsured')?.closest('.Column') || document;
@@ -833,14 +834,14 @@
     // Phone
     let phoneDisplay = '';
     let primaryPhone = '';
-    const roPhone = (root !== document) && Array.from(root.querySelectorAll('.named-insured-value')).find(e => /\(\d{3}\)\s*\d{3}-\d{4}/.test((e.textContent||'').trim()));
+    const roPhone = (root !== document) && Array.from(root.querySelectorAll('.named-insured-value')).find(e => /\(\d{3}\)\s*\d{3}-\d{4}/.test((e.textContent || '').trim()));
     if (roPhone) {
-      phoneDisplay = (roPhone.textContent||'').trim();
-      primaryPhone = phoneDisplay.replace(/[^\d]/g,'');
+      phoneDisplay = (roPhone.textContent || '').trim();
+      primaryPhone = phoneDisplay.replace(/[^\d]/g, '');
     } else {
       const inp = root.querySelector('#SecondNamedInsuredNumber_0');
       if (inp) {
-        primaryPhone = V(inp).replace(/[^\d]/g,'');
+        primaryPhone = V(inp).replace(/[^\d]/g, '');
         phoneDisplay = formatPhone(primaryPhone);
       }
     }
@@ -859,7 +860,7 @@
       ];
       for (const sel of cands) {
         const el = Array.from(root.querySelectorAll(sel)).find(isVisible);
-        const txt = (el?.textContent||'').trim();
+        const txt = (el?.textContent || '').trim();
         const m = txt && txt.match(/\b(\d{1,2})\/(\d{1,2})\/(\d{2,4})\b/);
         if (m) return `${m[1]}/${m[2]}/${m[3]}`;
       }
@@ -913,7 +914,7 @@
     if (!primaryEmail) {
       const anchors = Array.from(document.querySelectorAll('a'));
       for (const a of anchors) {
-        const m = (a.textContent||'').match(emailRe);
+        const m = (a.textContent || '').match(emailRe);
         if (m) { primaryEmail = m[0]; break; }
       }
     }
@@ -926,7 +927,7 @@
       const eye = document.querySelector('a.mx-link.mx-name-actionButton3.organization-view-eye-icon-link');
       if (!span) return '';
       let val = (span.textContent || '').trim();
-      const isMasked = (t) => /\*/.test(t) || t.replace(/[^\d]/g,'').length < 9;
+      const isMasked = (t) => /\*/.test(t) || t.replace(/[^\d]/g, '').length < 9;
       if (isMasked(val) && eye) {
         eye.click();
         await waitForText(span, t => !isMasked(t), { timeout: 4000, interval: 150 });
@@ -939,8 +940,8 @@
     const phoneText = (document.querySelector('.phone-list .mx-name-lbl_MailAddress2')?.textContent || '').trim();
     const primaryPhone = phoneText.replace(/[^\d]/g, '');
 
-    const addrText = (document.querySelector('.address-list .mx-name-lbl_MailAddress2')?.textContent || '').replace(/\r/g,'');
-    const lines = (addrText||'').split('\n').map(s=>s.trim()).filter(Boolean);
+    const addrText = (document.querySelector('.address-list .mx-name-lbl_MailAddress2')?.textContent || '').replace(/\r/g, '');
+    const lines = (addrText || '').split('\n').map(s => s.trim()).filter(Boolean);
     let line1 = '', city = '', state = '', zip = '';
     if (lines.length) {
       line1 = lines[0];
@@ -975,21 +976,21 @@
     const einEl = await waitFor(() => S('span.mx-name-lbl_SsnValue4'), { timeout: 8000 });
     let ein = '';
     if (einEl) {
-      await waitForText(einEl, t => /\d{2}-\d{7}/.test(t) || (t.replace(/[^\d]/g,'').length === 9), { timeout: 4000 });
+      await waitForText(einEl, t => /\d{2}-\d{7}/.test(t) || (t.replace(/[^\d]/g, '').length === 9), { timeout: 4000 });
       const txt = T(einEl);
       const m = txt.match(/(\d{2}-\d{7})/);
-      ein = (m ? m[1] : txt).replace(/[^\d-]/g,'');
+      ein = (m ? m[1] : txt).replace(/[^\d-]/g, '');
     }
     const addrBlockRaw = T(S('.address-list .address-edit-addressline2 .mx-name-lbl_MailAddress2'));
-    const addrLines = addrBlockRaw.replace(/\r/g,'').split('\n').map(s=>s.trim()).filter(Boolean);
-    let line1='', city='', state='', zip='';
+    const addrLines = addrBlockRaw.replace(/\r/g, '').split('\n').map(s => s.trim()).filter(Boolean);
+    let line1 = '', city = '', state = '', zip = '';
     if (addrLines.length) {
       line1 = addrLines[0];
-      const tail = addrLines[addrLines.length-1];
+      const tail = addrLines[addrLines.length - 1];
       const csz = parseCityStateZip(tail);
       city = csz.city; state = csz.state; zip = csz.zip;
     }
-    const primaryPhone = (T(S('.phone-list .mx-name-lbl_MailAddress2')) || '').replace(/[^\d]/g,'');
+    const primaryPhone = (T(S('.phone-list .mx-name-lbl_MailAddress2')) || '').replace(/[^\d]/g, '');
     // Email can be in a span or an anchor depending on view
     let primaryEmail = '';
     const anchorEmail = document.querySelector('a.party-view-email-value, a.mx-link.mx-name-actionButton4.party-view-email-value');
@@ -1008,11 +1009,11 @@
       primaryEmail: primaryEmail && primaryEmail !== '-' ? primaryEmail : '',
       ein,
       contactType: 'Customers', customerType: 'Commercial',
-      address: { line1, line2:'', city, state, zip }
+      address: { line1, line2: '', city, state, zip }
     };
   }
 
-    async function autoDetect() {
+  async function autoDetect() {
     if (hasErieProfileEmailAnchor()) return await extractErieProfile();
     if (isNatGenNamedInsured()) return extractNatGenNamedInsured();
     if (isNatGenSummary()) return extractNatGenSummary();
@@ -1021,8 +1022,8 @@
     if (isErieMendix()) return await extractErieMendix();
     if (isNFIPInsuredPanel()) return await extractNFIPInsuredPanel();
 
-    return { carrier: location.hostname, sourceUrl: location.href, address:{} };
-    }
+    return { carrier: location.hostname, sourceUrl: location.href, address: {} };
+  }
 
   function mountExtractorPanel() {
     const el = buildExtractorPanel();
@@ -1031,7 +1032,7 @@
       try {
         const p = sanitizePayloadObject((await autoDetect()) || {});
         lastExtracted = p;
-        try { await GM_setValue(STORAGE_KEY, p); } catch {}
+        try { await GM_setValue(STORAGE_KEY, p); } catch { }
         extractorSetUI(p);
         // reflect to header selectors (do not override Contact type; keep user's choice/default)
         const ct = extractorPanel.querySelector('#qqc-ct-ex');
@@ -1049,7 +1050,7 @@
       try {
         const p = sanitizePayloadObject((await autoDetect()) || {});
         lastExtracted = p;
-        try { await GM_setValue(STORAGE_KEY, p); } catch {}
+        try { await GM_setValue(STORAGE_KEY, p); } catch { }
         extractorSetUI(p);
         // reflect to header selectors (do not override Contact type; keep user's choice/default)
         const ct = extractorPanel.querySelector('#qqc-ct-ex');
@@ -1097,7 +1098,7 @@
     if (!pastePanel) return;
     const s = pastePanel.querySelector('#qqc-status');
     s.textContent = msg;
-    setTimeout(()=> s.textContent = '', 6000);
+    setTimeout(() => s.textContent = '', 6000);
   }
   function buildPastePanel() {
     if (pastePanel && pasteHost?.isConnected) return pastePanel;
@@ -1152,7 +1153,7 @@
     pastePanel = el;
     el.querySelector('#qqc-close')?.addEventListener('click', closePastePanel);
     // Fix mojibake in close text if present
-    try { const c = pastePanel.querySelector('#qqc-close'); if (c) c.textContent = 'X'; } catch {}
+    try { const c = pastePanel.querySelector('#qqc-close'); if (c) c.textContent = 'X'; } catch { }
     // Make entire paste header draggable, excluding its close button
     const pasteHeader = pastePanel.querySelector('#qqc-header-pa');
     if (pasteHeader) {
@@ -1164,12 +1165,12 @@
       const cu = pastePanel.querySelector('#qqc-cust');
       if (ct && !ct.value) ct.value = 'Customers';
       if (cu && !cu.value) cu.value = 'Personal';
-    } catch {}
+    } catch { }
     return el;
   }
 
-  function parsePayload(text){ try{return JSON.parse(text);}catch{return null;} }
-  function setSelectToText(selectEl, text){ if (!selectEl || !text) return; const dn=text.toLowerCase(); const opt=Array.from(selectEl.options).find(o=>o.textContent.trim().toLowerCase()===dn)||Array.from(selectEl.options).find(o=>o.textContent.trim().toLowerCase().includes(dn)); if (opt) selectEl.value = opt.textContent.trim(); }
+  function parsePayload(text) { try { return JSON.parse(text); } catch { return null; } }
+  function setSelectToText(selectEl, text) { if (!selectEl || !text) return; const dn = text.toLowerCase(); const opt = Array.from(selectEl.options).find(o => o.textContent.trim().toLowerCase() === dn) || Array.from(selectEl.options).find(o => o.textContent.trim().toLowerCase().includes(dn)); if (opt) selectEl.value = opt.textContent.trim(); }
   async function getPayloadFromUI_Storage_Clipboard() {
     const box = pastePanel.querySelector('#qqc-json').value.trim();
     if (box) {
@@ -1208,41 +1209,41 @@
     if (!el) return;
     const proto = el instanceof HTMLInputElement ? HTMLInputElement.prototype
       : el instanceof HTMLSelectElement ? HTMLSelectElement.prototype
-      : HTMLTextAreaElement.prototype;
-    const desc = Object.getOwnPropertyDescriptor(proto,'value');
+        : HTMLTextAreaElement.prototype;
+    const desc = Object.getOwnPropertyDescriptor(proto, 'value');
     desc && desc.set.call(el, val);
-    el.dispatchEvent(new Event('input',{bubbles:true}));
-    el.dispatchEvent(new Event('change',{bubbles:true}));
+    el.dispatchEvent(new Event('input', { bubbles: true }));
+    el.dispatchEvent(new Event('change', { bubbles: true }));
   }
   function selectByText(select, desired) {
     if (!select || !desired) return false;
     const opts = Array.from(select.options || []);
     const dn = desired.toLowerCase();
-    let v = opts.find(o => o.textContent.trim().toLowerCase()===dn)?.value;
+    let v = opts.find(o => o.textContent.trim().toLowerCase() === dn)?.value;
     if (!v) v = opts.find(o => o.textContent.trim().toLowerCase().includes(dn))?.value;
-    if (v!=null) { select.value = v; select.dispatchEvent(new Event('change',{bubbles:true})); return true; }
+    if (v != null) { select.value = v; select.dispatchEvent(new Event('change', { bubbles: true })); return true; }
     return false;
   }
-  function setDateValue(input, mmddyyyy){
+  function setDateValue(input, mmddyyyy) {
     if (!input) return;
     input.focus();
     const proto = Object.getPrototypeOf(input) || HTMLInputElement.prototype;
-    const desc = Object.getOwnPropertyDescriptor(proto,'value') || Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value');
+    const desc = Object.getOwnPropertyDescriptor(proto, 'value') || Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value');
     if (desc && desc.set) desc.set.call(input, mmddyyyy);
-    input.dispatchEvent(new Event('input',{bubbles:true}));
-    input.dispatchEvent(new KeyboardEvent('keyup',{bubbles:true}));
-    input.dispatchEvent(new Event('change',{bubbles:true}));
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    input.dispatchEvent(new KeyboardEvent('keyup', { bubbles: true }));
+    input.dispatchEvent(new Event('change', { bubbles: true }));
     input.blur();
   }
-  function onDetailsPage(){ return /\/Contacts\/Customer\/Details\/\d+/i.test(location.pathname); }
+  function onDetailsPage() { return /\/Contacts\/Customer\/Details\/\d+/i.test(location.pathname); }
 
   async function ensurePopupOpen() {
     hudInfo('Opening New Contact popup...');
     const pop = document.querySelector('#add-contact-pop');
     if (pop && pop.offsetParent !== null) return pop;
     const triggers = Array.from(document.querySelectorAll('a,button'))
-      .filter(e => /new contact|add contact|create contact/i.test(e.textContent||''));
-    for (const t of triggers){ t.click(); await new Promise(r=>setTimeout(r,300)); const p=document.querySelector('#add-contact-pop'); if(p&&p.offsetParent!==null) return p; }
+      .filter(e => /new contact|add contact|create contact/i.test(e.textContent || ''));
+    for (const t of triggers) { t.click(); await new Promise(r => setTimeout(r, 300)); const p = document.querySelector('#add-contact-pop'); if (p && p.offsetParent !== null) return p; }
     const found = document.querySelector('#add-contact-pop') || null;
     if (!found) hudError('Could not open popup');
     return found;
@@ -1250,7 +1251,7 @@
 
   function desiredPhoneCategory(payload) {
     const t = (payload.phoneType || '').toLowerCase();
-    const known = ['cell','home','work','mobile','business cell','other'];
+    const known = ['cell', 'home', 'work', 'mobile', 'business cell', 'other'];
     if (known.some(k => t.includes(k))) {
       if (t.includes('mobile')) return 'Cell';
       return payload.phoneType;
@@ -1285,12 +1286,12 @@
     // Wait for email input to be present then set
     const emailEl = await waitForSelector('#txtEmail', { root: pop, timeout: 8000, interval: 100 });
     if (emailEl) {
-      try { emailEl.focus(); } catch {}
+      try { emailEl.focus(); } catch { }
       setVal(emailEl, (payload.primaryEmail || '').toLowerCase());
       // Some instances validate on key events + blur; add both for reliability
       emailEl.dispatchEvent(new KeyboardEvent('keyup', { bubbles: true }));
       emailEl.dispatchEvent(new Event('change', { bubbles: true }));
-      try { emailEl.blur(); } catch {}
+      try { emailEl.blur(); } catch { }
       await new Promise(r => setTimeout(r, 120));
     }
     selectByText(pop.querySelector('#selEmailType'), payload.businessName ? 'Professional' : 'Personal');
@@ -1303,13 +1304,13 @@
     if (duplicateDetected) {
       pasteStatus('Possible duplicate found. Stopping automation.');
       hudError('Duplicate contact detected.');
-      try { await GM_setValue(PENDING_KEY, {}); } catch {}
+      try { await GM_setValue(PENDING_KEY, {}); } catch { }
       return false;
     }
 
     hudInfo('Popup submitted. Waiting for details...');
     // Persist a pending instruction to proceed with details on next page
-    try { await GM_setValue(PENDING_KEY, { payload, ts: Date.now(), stage: 'details' }); } catch {}
+    try { await GM_setValue(PENDING_KEY, { payload, ts: Date.now(), stage: 'details' }); } catch { }
     pasteStatus('Submitted popup. Waiting for details page...');
     return true;
   }
@@ -1325,7 +1326,7 @@
     if (emailInput) setVal(emailInput, (payload.primaryEmail || '').toLowerCase());
     const save = basic.querySelector('.SectionButtons .section_save');
     if (save) {
-      try { save.classList.remove('hide'); save.style.removeProperty('display'); } catch {}
+      try { save.classList.remove('hide'); save.style.removeProperty('display'); } catch { }
       save.click();
     }
     return true;
@@ -1333,10 +1334,10 @@
 
   async function ensureAddressEditorOpen() {
     // Wait for the link to appear
-    let link = await waitFor(() => Array.from(document.querySelectorAll('a.h2AddRecordLink')).find(a => /add an address/i.test(a.textContent||'') && a.offsetParent!==null), { timeout: 8000, interval: 150 });
-    if (!link) link = await waitFor(() => Array.from(document.querySelectorAll('a,button')).find(a => /add an address/i.test(a.textContent||'') && a.offsetParent!==null), { timeout: 8000, interval: 150 });
+    let link = await waitFor(() => Array.from(document.querySelectorAll('a.h2AddRecordLink')).find(a => /add an address/i.test(a.textContent || '') && a.offsetParent !== null), { timeout: 8000, interval: 150 });
+    if (!link) link = await waitFor(() => Array.from(document.querySelectorAll('a,button')).find(a => /add an address/i.test(a.textContent || '') && a.offsetParent !== null), { timeout: 8000, interval: 150 });
     if (link) {
-      try { link.scrollIntoView({ block: 'center' }); } catch {}
+      try { link.scrollIntoView({ block: 'center' }); } catch { }
       link.click();
       const editor = await waitForSelector('.AddressesDetailContainer .section-detaildata input[name="Line1"]', { timeout: 15000, interval: 150 });
       return !!editor;
@@ -1350,19 +1351,19 @@
     hudInfo('Filling Address...');
     const opened = await ensureAddressEditorOpen();
     if (!opened) return false;
-    const detail = Array.from(document.querySelectorAll('.AddressesDetailContainer .section-detaildata')).find(d => d.offsetParent!==null)
-                 || document.querySelector('.AddressesDetailContainer .section-detaildata');
+    const detail = Array.from(document.querySelectorAll('.AddressesDetailContainer .section-detaildata')).find(d => d.offsetParent !== null)
+      || document.querySelector('.AddressesDetailContainer .section-detaildata');
     if (!detail) return false;
 
-    const setField = (sel, val) => { const el=detail.querySelector(sel); if(!el) return; el.focus(); el.value=val||''; el.dispatchEvent(new Event('input',{bubbles:true})); el.dispatchEvent(new Event('change',{bubbles:true})); el.blur(); };
+    const setField = (sel, val) => { const el = detail.querySelector(sel); if (!el) return; el.focus(); el.value = val || ''; el.dispatchEvent(new Event('input', { bubbles: true })); el.dispatchEvent(new Event('change', { bubbles: true })); el.blur(); };
     const selectIn = (sel, txt) => {
       const el = detail.querySelector(sel);
       if (!el || !txt) return;
-      const dn = (txt||'').trim().toLowerCase();
+      const dn = (txt || '').trim().toLowerCase();
       let opt = Array.from(el.options).find(o => o.textContent.trim().toLowerCase() === dn)
-             || Array.from(el.options).find(o => o.textContent.trim().toLowerCase().includes(dn));
+        || Array.from(el.options).find(o => o.textContent.trim().toLowerCase().includes(dn));
       // Fallback: try exact value match (e.g., "NC")
-      if (!opt) opt = Array.from(el.options).find(o => (o.value||'').trim().toLowerCase() === dn);
+      if (!opt) opt = Array.from(el.options).find(o => (o.value || '').trim().toLowerCase() === dn);
       if (opt) {
         el.value = opt.value;
         el.dispatchEvent(new Event('change', { bubbles: true }));
@@ -1372,7 +1373,7 @@
     // Ensure Country is United States so State/Province select is visible and correct
     const countrySel = detail.querySelector('select[name="CountryID"]');
     if (countrySel) {
-      const preferUSA = Array.from(countrySel.options).find(o => (o.value||'').toUpperCase() === 'USA');
+      const preferUSA = Array.from(countrySel.options).find(o => (o.value || '').toUpperCase() === 'USA');
       const preferText = Array.from(countrySel.options).find(o => o.textContent.trim().toLowerCase() === 'united states');
       const val = (preferUSA?.value) || (preferText?.value) || '';
       if (val && countrySel.value !== val) {
@@ -1384,14 +1385,14 @@
 
     setField('input[name="Line1"]', payload.address?.line1 || '');
     setField('input[name="Line2"]', payload.address?.line2 || '');
-    setField('input[name="City"]',  payload.address?.city  || '');
+    setField('input[name="City"]', payload.address?.city || '');
     // Prefer matching by exact value when a 2-letter state code is provided
     const stateCode = (payload.address?.state || '').trim();
     if (stateCode.length === 2) {
       const el = detail.querySelector('select[name="StateID"]');
       if (el) {
         const desired = stateCode.toUpperCase();
-        let opt = Array.from(el.options).find(o => (o.value||'').toUpperCase() === desired);
+        let opt = Array.from(el.options).find(o => (o.value || '').toUpperCase() === desired);
         if (!opt) opt = Array.from(el.options).find(o => o.textContent.trim().toLowerCase() === desired.toLowerCase());
         if (opt) { el.value = opt.value; el.dispatchEvent(new Event('change', { bubbles: true })); }
         else { selectIn('select[name="StateID"]', stateCode); }
@@ -1399,14 +1400,14 @@
     } else {
       selectIn('select[name="StateID"]', stateCode);
     }
-    setField('input[name="Zip"]', (payload.address?.zip || '').slice(0,5));
+    setField('input[name="Zip"]', (payload.address?.zip || '').slice(0, 5));
     selectIn('select[name="AddressTypeID"]', payload.address?.addressType || 'Mailing');
 
     // Click the section-level Save for Addresses form
     const addrForm = document.querySelector('form#Addresses') || detail.closest('form');
     const save = addrForm?.querySelector('.SectionButtons .section_save') || document.querySelector('form#Addresses .SectionButtons .section_save');
     if (save) {
-      try { save.classList.remove('hide'); save.style.removeProperty('display'); } catch {}
+      try { save.classList.remove('hide'); save.style.removeProperty('display'); } catch { }
       save.click();
       // Give QQ time to persist and collapse the editor
       await new Promise(r => setTimeout(r, 300));
@@ -1421,7 +1422,7 @@
 
     // Ensure section is in edit mode
     const ensureEdit = async () => {
-      try { pf.scrollIntoView({ block: 'center' }); } catch {}
+      try { pf.scrollIntoView({ block: 'center' }); } catch { }
       const saveBtn = pf.querySelector('.SectionButtons .section_save');
       const isVisible = (el) => el && el.offsetParent !== null && !el.classList.contains('hide');
       if (!isVisible(saveBtn)) {
@@ -1437,21 +1438,21 @@
     };
     await ensureEdit();
 
-    const setField = (sel, val) => { const el=pf.querySelector(sel); if(!el) return; el.focus(); el.value=val||''; el.dispatchEvent(new Event('input',{bubbles:true})); el.dispatchEvent(new Event('change',{bubbles:true})); el.blur(); };
+    const setField = (sel, val) => { const el = pf.querySelector(sel); if (!el) return; el.focus(); el.value = val || ''; el.dispatchEvent(new Event('input', { bubbles: true })); el.dispatchEvent(new Event('change', { bubbles: true })); el.blur(); };
     const selectIn = (sel, txt) => {
       const el = pf.querySelector(sel);
       if (!el || !txt) return;
-      const dn = (txt||'').trim().toLowerCase();
+      const dn = (txt || '').trim().toLowerCase();
       let opt = Array.from(el.options).find(o => o.textContent.trim().toLowerCase() === dn)
-              || Array.from(el.options).find(o => o.textContent.trim().toLowerCase().includes(dn));
-      if (!opt) opt = Array.from(el.options).find(o => (o.value||'').trim().toLowerCase() === dn);
+        || Array.from(el.options).find(o => o.textContent.trim().toLowerCase().includes(dn));
+      if (!opt) opt = Array.from(el.options).find(o => (o.value || '').trim().toLowerCase() === dn);
       if (opt) { el.value = opt.value; el.dispatchEvent(new Event('change', { bubbles: true })); }
     };
 
     // Fill fields
-    setField('input[name="FirstName"]',  payload.firstName  || '');
+    setField('input[name="FirstName"]', payload.firstName || '');
     setField('input[name="MiddleName"]', payload.middleName || '');
-    setField('input[name="LastName"]',   payload.lastName   || '');
+    setField('input[name="LastName"]', payload.lastName || '');
     const dobEl = pf.querySelector('input[name="DateOfBirthString"]');
     const dobStr = toMMDDYYYY(payload.dob || '');
     if (dobEl && dobStr) setDateValue(dobEl, dobStr);
@@ -1466,7 +1467,7 @@
     if (save) {
       // Small delay to allow any datepicker/validators to settle
       await new Promise(r => setTimeout(r, 150));
-      try { save.classList.remove('hide'); save.style.removeProperty('display'); } catch {}
+      try { save.classList.remove('hide'); save.style.removeProperty('display'); } catch { }
       save.click();
       await new Promise(r => setTimeout(r, 250));
     }
@@ -1482,7 +1483,7 @@
     const sectionEdit = section.querySelector('.SectionButtons .section_edit');
     const __isBtnVisible = (el) => el && el.offsetParent !== null && !el.classList.contains('hide');
     if (!__isBtnVisible(sectionSave) && sectionEdit) {
-      try { sectionEdit.scrollIntoView({ block: 'center' }); } catch {}
+      try { sectionEdit.scrollIntoView({ block: 'center' }); } catch { }
       sectionEdit.click();
       await waitFor(() => {
         const sb = section.querySelector('.SectionButtons .section_save');
@@ -1490,17 +1491,17 @@
       }, { timeout: 8000, interval: 120 });
     }
     // Find the header "Add A Contact" action
-    let link = section && Array.from(section.querySelectorAll('span.h2AddRecord a.add-another-row')).find(a => /add a contact/i.test((a.textContent||'')) && isVisible(a));
+    let link = section && Array.from(section.querySelectorAll('span.h2AddRecord a.add-another-row')).find(a => /add a contact/i.test((a.textContent || '')) && isVisible(a));
     if (!link) {
       // Fallback: any visible Add A Contact link inside this section
-      link = section && Array.from(section.querySelectorAll('a.add-another-row')).find(a => /add a contact/i.test((a.textContent||'')) && isVisible(a));
+      link = section && Array.from(section.querySelectorAll('a.add-another-row')).find(a => /add a contact/i.test((a.textContent || '')) && isVisible(a));
     }
     // If detail editor already visible, we’re good
     const form = document.querySelector('form#AdditionalContacts');
     const detailVisible = form && isVisible(form.querySelector('.AdditionalContactsDetailContainer')) && form.querySelector('.AdditionalContactsDetailContainer .section-detaildata input[name="FirstName"]');
     if (detailVisible) return true;
     if (link) {
-      try { link.scrollIntoView({ block:'center' }); } catch {}
+      try { link.scrollIntoView({ block: 'center' }); } catch { }
       link.click();
       const editor = await waitForSelector('form#AdditionalContacts .AdditionalContactsDetailContainer .section-detaildata input[name="FirstName"]', { timeout: 20000, interval: 150 });
       return !!editor;
@@ -1513,7 +1514,7 @@
     const opened = await ensureAdditionalContactsEditorOpen();
     if (!opened) return false;
     const form = document.querySelector('form#AdditionalContacts');
-    const detail = Array.from(form.querySelectorAll('.AdditionalContactsDetailContainer .section-detaildata')).find(d => d.offsetParent!==null) || form.querySelector('.AdditionalContactsDetailContainer .section-detaildata');
+    const detail = Array.from(form.querySelectorAll('.AdditionalContactsDetailContainer .section-detaildata')).find(d => d.offsetParent !== null) || form.querySelector('.AdditionalContactsDetailContainer .section-detaildata');
     if (!detail) return false;
     // Ensure the Additional Contacts section is in edit mode
     const isVisible = (el) => el && el.offsetParent !== null && !(el.classList?.contains('hide'));
@@ -1521,7 +1522,7 @@
     if (!isVisible(saveBtn)) {
       const editBtn = form.querySelector('.SectionButtons .section_edit');
       if (editBtn) {
-        try { editBtn.scrollIntoView({ block: 'center' }); } catch {}
+        try { editBtn.scrollIntoView({ block: 'center' }); } catch { }
         editBtn.click();
         await waitFor(() => {
           const sb = form.querySelector('.SectionButtons .section_save');
@@ -1529,8 +1530,8 @@
         }, { timeout: 8000, interval: 120 });
       }
     }
-    const setField = (sel, val) => { const el=detail.querySelector(sel); if(!el) return; el.focus(); el.value=val||''; el.dispatchEvent(new Event('input',{bubbles:true})); el.dispatchEvent(new Event('change',{bubbles:true})); el.blur(); };
-    const selectIn = (sel, txt) => { const el=detail.querySelector(sel); if(!el||!txt) return; const dn=(txt||'').trim().toLowerCase(); let opt=Array.from(el.options).find(o=>o.textContent.trim().toLowerCase()===dn)||Array.from(el.options).find(o=>o.textContent.trim().toLowerCase().includes(dn)); if(!opt) opt=Array.from(el.options).find(o=>(o.value||'').trim().toLowerCase()===dn); if(opt){ el.value=opt.value; el.dispatchEvent(new Event('change',{bubbles:true})); } };
+    const setField = (sel, val) => { const el = detail.querySelector(sel); if (!el) return; el.focus(); el.value = val || ''; el.dispatchEvent(new Event('input', { bubbles: true })); el.dispatchEvent(new Event('change', { bubbles: true })); el.blur(); };
+    const selectIn = (sel, txt) => { const el = detail.querySelector(sel); if (!el || !txt) return; const dn = (txt || '').trim().toLowerCase(); let opt = Array.from(el.options).find(o => o.textContent.trim().toLowerCase() === dn) || Array.from(el.options).find(o => o.textContent.trim().toLowerCase().includes(dn)); if (!opt) opt = Array.from(el.options).find(o => (o.value || '').trim().toLowerCase() === dn); if (opt) { el.value = opt.value; el.dispatchEvent(new Event('change', { bubbles: true })); } };
 
     setField('input[name="FirstName"]', toNameCase(contact.firstName));
     setField('input[name="MiddleName"]', contact.middleName || '');
@@ -1556,49 +1557,49 @@
       // Set country first
       const countrySel = detail.querySelector('select[name="CountryID"]');
       if (countrySel) {
-        let val = Array.from(countrySel.options).find(o => (o.value||'').toUpperCase()==='USA')?.value;
-        if (!val) val = Array.from(countrySel.options).find(o => o.textContent.trim().toLowerCase()==='united states')?.value;
-        if (val) { countrySel.value = val; countrySel.dispatchEvent(new Event('change',{bubbles:true})); await new Promise(r=>setTimeout(r,120)); }
+        let val = Array.from(countrySel.options).find(o => (o.value || '').toUpperCase() === 'USA')?.value;
+        if (!val) val = Array.from(countrySel.options).find(o => o.textContent.trim().toLowerCase() === 'united states')?.value;
+        if (val) { countrySel.value = val; countrySel.dispatchEvent(new Event('change', { bubbles: true })); await new Promise(r => setTimeout(r, 120)); }
       }
       setField('input[name="Line1"]', contact.address.line1 || '');
       setField('input[name="Line2"]', contact.address.line2 || '');
-      setField('input[name="City"]',  contact.address.city  || '');
-      const st = (contact.address.state||'').trim();
+      setField('input[name="City"]', contact.address.city || '');
+      const st = (contact.address.state || '').trim();
       if (st) selectIn('select[name="StateID"]', st);
-      setField('input[name="Zip"]', (contact.address.zip||'').slice(0,5));
+      setField('input[name="Zip"]', (contact.address.zip || '').slice(0, 5));
     }
 
     // Phone
     const phoneInput = detail.querySelector('.PhoneTemplateContainer [data-section="phone"] input[name="Value"], .PhoneTemplateContainer input[name="Value"]');
     if (phoneInput) {
-      setField('[data-section="phone"] input[name="Value"], .PhoneTemplateContainer input[name="Value"]', (contact.primaryPhone||'').replace(/[^\d]/g,''));
+      setField('[data-section="phone"] input[name="Value"], .PhoneTemplateContainer input[name="Value"]', (contact.primaryPhone || '').replace(/[^\d]/g, ''));
       const phoneTypeSel = detail.querySelector('.PhoneTemplateContainer .PhoneTypes');
-      if (phoneTypeSel) selectIn('.PhoneTemplateContainer .PhoneTypes', (contact.phoneType||'').toLowerCase().includes('mobile') ? 'Cell' : (contact.phoneType||''));
+      if (phoneTypeSel) selectIn('.PhoneTemplateContainer .PhoneTypes', (contact.phoneType || '').toLowerCase().includes('mobile') ? 'Cell' : (contact.phoneType || ''));
     }
 
     // Email
     const emailInput = detail.querySelector('.EmailTemplateContainer input[name="Value"]');
-    if (emailInput) setField('.EmailTemplateContainer input[name="Value"]', (contact.primaryEmail||'').toLowerCase());
+    if (emailInput) setField('.EmailTemplateContainer input[name="Value"]', (contact.primaryEmail || '').toLowerCase());
 
     // Save
     const save = form.querySelector('.SectionButtons .section_save');
     if (save) {
-      try { save.classList.remove('hide'); save.style.removeProperty('display'); } catch {}
+      try { save.classList.remove('hide'); save.style.removeProperty('display'); } catch { }
       save.click();
       // Wait for save to complete (spinner or detail collapse)
       const spinner = form.querySelector('.SectionButtons .section_saving');
-      for (let i=0;i<20;i++) { await new Promise(r=>setTimeout(r,150)); if (!spinner || spinner.style.display === 'none') break; }
+      for (let i = 0; i < 20; i++) { await new Promise(r => setTimeout(r, 150)); if (!spinner || spinner.style.display === 'none') break; }
       await new Promise(r => setTimeout(r, 200));
     }
     return true;
   }
 
-    async function runFillDetails(payload) {
+  async function runFillDetails(payload) {
     if (!onDetailsPage()) { pasteStatus("Not on details page."); return; }
     if (hasPossibleDuplicateWarning()) {
       pasteStatus('Possible duplicate found. Automation halted.');
       hudError('Duplicate contact detected.');
-      try { await GM_setValue(PENDING_KEY, {}); } catch {}
+      try { await GM_setValue(PENDING_KEY, {}); } catch { }
       return;
     }
     // Wait for Basic Contact Info section
@@ -1622,9 +1623,9 @@
         ok4 = ok4 && !!r;
       }
     }
-    let __status = `Filled: Basic ${ok1?'OK':'-'}, Address ${ok2?'OK':'-'}, Personal ${ok3?'OK':'-'}`;
+    let __status = `Filled: Basic ${ok1 ? 'OK' : '-'}, Address ${ok2 ? 'OK' : '-'}, Personal ${ok3 ? 'OK' : '-'}`;
     if (Array.isArray(payload.additionalContacts) && payload.additionalContacts.length) {
-      __status += `, Extra Contacts ${ok4?'OK':'-'}`;
+      __status += `, Extra Contacts ${ok4 ? 'OK' : '-'}`;
     }
     pasteStatus(__status);
     if (ok1 && ok2 && ok3 && (!Array.isArray(payload.additionalContacts) || !payload.additionalContacts.length || ok4)) {
@@ -1632,9 +1633,8 @@
     } else {
       hudError('QQC fill incomplete');
     }
-    try { await clickSaveAllChanges(); } catch {}
-    try { await addCarrierNoteIfNeeded(payload); } catch {}
-    try { await GM_setValue(PENDING_KEY, {}); } catch {}
+    try { await clickSaveAllChanges(); } catch { }
+    try { await addCarrierNoteIfNeeded(payload); } catch { }
   }
   function mountPastePanel() {
     const ui = buildPastePanel();
@@ -1762,12 +1762,19 @@
         }
         if (onDetailsPage()) {
           hudInfo('Filling details...');
-          await waitFor(() => document.querySelector('form#BasicContactInfo') || document.querySelector('form#PersonalInfo') || document.querySelector('form#Addresses'), { timeout: 20000, interval: 200 });
+          await waitFor(() =>
+            document.querySelector('form#BasicContactInfo') ||
+            document.querySelector('form#PersonalInfo') ||
+            document.querySelector('form#Addresses'),
+            { timeout: 20000, interval: 200 }
+          );
+
+          try { await GM_setValue(PENDING_KEY, {}); } catch { }
+
           await runFillDetails(pending.payload);
-          await GM_setValue(PENDING_KEY, {});
         }
+
       }
-    } catch {}
+    } catch { }
   })();
 })();
-
