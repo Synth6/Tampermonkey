@@ -4,7 +4,7 @@
 // Not authorized for redistribution or resale.
 // @name         MCI Master Menu
 // @namespace    mci-tools
-// @version      4.5
+// @version      4.6
 // @description  Slide-out toolbox (QQ / Erie / NatGen) with Shadow DOM. Hover far-left to open; Alt+M toggles; Alt+Shift+M removes. Copy/Paste mapper, VIN lookup, and in-menu QQC Carrier Extractor -> QQ autofill pipeline.
 // @match        https://app.qqcatalyst.com/*
 // @match        https://*.qqcatalyst.com/*
@@ -580,7 +580,7 @@
   *, *::before, *::after{ box-sizing:border-box; }
 
   #${TRIGGER_ID}{
-    position:fixed; top:0; left:0; width:28px; height:100vh;
+    position:fixed; top:0; left:0; width:4px; height:100vh;
     z-index:2147483647; background:transparent; cursor:ew-resize;
   }
   #${MENU_ID}{
@@ -1758,4 +1758,5 @@ function runFaxEnhancer() {
 
 
 })();
+
 
