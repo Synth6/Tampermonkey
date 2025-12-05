@@ -89,23 +89,30 @@
     .hidden {
       display: none;
     }
+
+    /* === Incomplete / masked fields (same idea as Auto sheet) === */
+    .incomplete {
+      border-color: #dc2626 !important;       /* red */
+      box-shadow: 0 0 0 1px #fecaca;          /* subtle outline */
+      background-color: #fef2f2;              /* light red background */
+    }
   </style>
 </head>
 <body>
   <h1>Homeowners Quote Sheet</h1>
 
-  <form>
+  <form id="home-quote-form">
     <!-- 1. Header / Quote Basics -->
     <div class="section">
       <h2>1. Quote Basics</h2>
       <div class="grid">
         <div>
           <label for="home_agencyName">Agency Name</label>
-          <input id="home_agencyName" type="text" value="Middle Creek Insurance">
+          <input id="home_agencyName" type="text" value="Middle Creek Insurance" data-required="true">
         </div>
         <div>
           <label for="home_policyEffDate">Policy Eff Date</label>
-          <input id="home_policyEffDate" type="date">
+          <input id="home_policyEffDate" type="date" data-required="true">
         </div>
 
         <div>
@@ -151,7 +158,7 @@
       <div class="grid">
         <div>
           <label for="home_namedInsured">Named Insured</label>
-          <input id="home_namedInsured" type="text">
+          <input id="home_namedInsured" type="text" data-required="true">
         </div>
         <div>
           <label for="home_insuredEmail">Insured Email</label>
@@ -160,20 +167,20 @@
 
         <div class="full">
           <label for="home_propertyAddress">Property Address</label>
-          <input id="home_propertyAddress" type="text">
+          <input id="home_propertyAddress" type="text" data-required="true">
         </div>
 
         <div>
           <label for="home_city">City</label>
-          <input id="home_city" type="text">
+          <input id="home_city" type="text" data-required="true">
         </div>
         <div>
           <label for="home_zip">Zip Code</label>
-          <input id="home_zip" type="text">
+          <input id="home_zip" type="text" data-required="true">
         </div>
         <div>
           <label for="home_state">State</label>
-          <input id="home_state" type="text">
+          <input id="home_state" type="text" data-required="true">
         </div>
         <div>
           <label for="home_county">County</label>
@@ -216,11 +223,11 @@
       <div class="grid">
         <div>
           <label for="home_dwellingValue">Dwelling Value ($)</label>
-          <input id="home_dwellingValue" type="text">
+          <input id="home_dwellingValue" type="text" data-required="true">
         </div>
         <div>
-        <label for="home_liabLimit">Liability Limit ($)</label>
-        <select id="home_liabLimit">
+          <label for="home_liabLimit">Liability Limit ($)</label>
+          <select id="home_liabLimit" data-required="true">
             <option value=""></option>
             <option value="100000">100,000</option>
             <option value="200000">200,000</option>
@@ -229,34 +236,33 @@
             <option value="500000">500,000</option>
             <option value="750000">750,000</option>
             <option value="1000000">1,000,000</option>
-        </select>
+          </select>
         </div>
         <div>
-        <label for="home_medPayLimit">Med Pay Limit ($)</label>
-        <select id="home_medPayLimit">
+          <label for="home_medPayLimit">Med Pay Limit ($)</label>
+          <select id="home_medPayLimit">
             <option value=""></option>
             <option value="1000">1,000</option>
             <option value="2000">2,000</option>
             <option value="3000">3,000</option>
             <option value="4000">4,000</option>
             <option value="5000">5,000</option>
-        </select>
-
+          </select>
         </div>
 
         <div>
-        <label for="home_protectionClass">Protection Class / Fire District</label>
-        <input id="home_protectionClass" type="text">
+          <label for="home_protectionClass">Protection Class / Fire District</label>
+          <input id="home_protectionClass" type="text">
         </div>
 
         <div>
-        <label for="home_yearBuilt">Year Built</label>
-        <input id="home_yearBuilt" type="text" placeholder="yyyy">
+          <label for="home_yearBuilt">Year Built</label>
+          <input id="home_yearBuilt" type="text" placeholder="yyyy" data-required="true">
         </div>
 
         <div>
           <label for="home_sqFootage">Sq. Footage</label>
-          <input id="home_sqFootage" type="text">
+          <input id="home_sqFootage" type="text" data-required="true">
         </div>
 
         <div class="full">
@@ -268,67 +274,66 @@
 
     <!-- 5. Construction & Deductibles -->
     <div class="grid">
-    <div>
+      <div>
         <label for="home_constructionFrame">Construction Type</label>
-        <select id="home_constructionFrame">
-        <option value="">-- Select --</option>
-        <option value="BrickOrMasonry">Brick or Masonry</option>
-        <option value="BrickOrMasonryVeneer">Brick Veneer or Masonry Veneer</option>
-        <option value="FireResistive">Fire Resistive, Non-Combustible or Masonry Non-Combustible</option>
-        <option value="Frame">Frame</option>
-        <option value="Log">Log</option>
-        <option value="Stone">Stone</option>
-        <option value="StoneVeneer">Stone Veneer</option>
+        <select id="home_constructionFrame" data-required="true">
+          <option value="">-- Select --</option>
+          <option value="BrickOrMasonry">Brick or Masonry</option>
+          <option value="BrickOrMasonryVeneer">Brick Veneer or Masonry Veneer</option>
+          <option value="FireResistive">Fire Resistive, Non-Combustible or Masonry Non-Combustible</option>
+          <option value="Frame">Frame</option>
+          <option value="Log">Log</option>
+          <option value="Stone">Stone</option>
+          <option value="StoneVeneer">Stone Veneer</option>
         </select>
-    </div>
-    <div>
+      </div>
+      <div>
         <label for="home_deductible">Deductible ($)</label>
-        <input id="home_deductible" type="text">
-    </div>
+        <input id="home_deductible" type="text" data-required="true">
+      </div>
     </div>
 
-      <div class="grid">
-        <div>
-          <label>Fire Extinguishers</label>
-          <div class="inline-group">
-            <input id="home_fireExtinguishers" type="checkbox">
-            <span>Yes</span>
-          </div>
+    <div class="grid">
+      <div>
+        <label>Fire Extinguishers</label>
+        <div class="inline-group">
+          <input id="home_fireExtinguishers" type="checkbox">
+          <span>Yes</span>
         </div>
-        <div>
-          <label>Dead Bolts</label>
-          <div class="inline-group">
-            <input id="home_deadBolts" type="checkbox">
-            <span>Yes</span>
-          </div>
+      </div>
+      <div>
+        <label>Dead Bolts</label>
+        <div class="inline-group">
+          <input id="home_deadBolts" type="checkbox">
+          <span>Yes</span>
         </div>
-        <div>
-          <label>Smoke Detectors</label>
-          <div class="inline-group">
-            <input id="home_smokeDetectors" type="checkbox">
-            <span>Yes</span>
-          </div>
+      </div>
+      <div>
+        <label>Smoke Detectors</label>
+        <div class="inline-group">
+          <input id="home_smokeDetectors" type="checkbox">
+          <span>Yes</span>
         </div>
-        <div>
-          <label>Central Heat</label>
-          <div class="inline-group">
-            <input id="home_centralHeat" type="checkbox">
-            <span>Yes</span>
-          </div>
+      </div>
+      <div>
+        <label>Central Heat</label>
+        <div class="inline-group">
+          <input id="home_centralHeat" type="checkbox">
+          <span>Yes</span>
         </div>
-        <div>
-          <label>Central Alarm</label>
-          <div class="inline-group">
-            <input id="home_centralAlarm" type="checkbox">
-            <span>Yes</span>
-          </div>
+      </div>
+      <div>
+        <label>Central Alarm</label>
+        <div class="inline-group">
+          <input id="home_centralAlarm" type="checkbox">
+          <span>Yes</span>
         </div>
-        <div>
-          <label>Local Alarm</label>
-          <div class="inline-group">
-            <input id="home_localAlarm" type="checkbox">
-            <span>Yes</span>
-          </div>
+      </div>
+      <div>
+        <label>Local Alarm</label>
+        <div class="inline-group">
+          <input id="home_localAlarm" type="checkbox">
+          <span>Yes</span>
         </div>
       </div>
     </div>
@@ -352,12 +357,12 @@
         </div>
 
         <div>
-            <label for="home_secondNamedBirthdate">Second Named Insured Birthdate</label>
-            <input
+          <label for="home_secondNamedBirthdate">Second Named Insured Birthdate</label>
+          <input
             id="home_secondNamedBirthdate"
             type="text"
             placeholder="**/**/1970 or MM/DD/YYYY if known"
-            >
+          >
         </div>
         <div>
           <label for="home_secondNamedSSN">Second Named Insured SS#</label>
@@ -506,8 +511,7 @@
     </div>
   </form>
 
-  <!-- Autofill + conditional logic -->
-  <!-- Autofill + conditional logic -->
+  <!-- Autofill + conditional logic + red-outline validation -->
   <script>
     (function() {
       function updateConditionalSections() {
@@ -550,19 +554,34 @@
         const autoCheckbox = document.getElementById("home_autoWithAgency");
 
         if (poolCheckbox) {
-          poolCheckbox.addEventListener("change", updateConditionalSections);
+          poolCheckbox.addEventListener("change", function() {
+            updateConditionalSections();
+            markIncompleteFields();
+          });
         }
         if (dogsCheckbox) {
-          dogsCheckbox.addEventListener("change", updateConditionalSections);
+          dogsCheckbox.addEventListener("change", function() {
+            updateConditionalSections();
+            markIncompleteFields();
+          });
         }
         if (lossesCheckbox) {
-          lossesCheckbox.addEventListener("change", updateConditionalSections);
+          lossesCheckbox.addEventListener("change", function() {
+            updateConditionalSections();
+            markIncompleteFields();
+          });
         }
         if (endorsementsCheckbox) {
-          endorsementsCheckbox.addEventListener("change", updateConditionalSections);
+          endorsementsCheckbox.addEventListener("change", function() {
+            updateConditionalSections();
+            markIncompleteFields();
+          });
         }
         if (autoCheckbox) {
-          autoCheckbox.addEventListener("change", updateConditionalSections);
+          autoCheckbox.addEventListener("change", function() {
+            updateConditionalSections();
+            markIncompleteFields();
+          });
         }
 
         // Initial state
@@ -585,6 +604,61 @@
             el.value = value;
           }
         }
+      }
+
+      // Treat masked / partial stuff as "incomplete"
+      function isMaskedOrPlaceholder(val, el) {
+        if (!val) return false;
+        const s = String(val).trim();
+        if (!s) return false;
+
+        // Anything with *** (masked SSN, ZIP, etc.)
+        if (s.indexOf("***") !== -1) return true;
+
+        // A run of X or x characters (XXXX, XXX-XX-1234, etc.)
+        if (/x{2,}/i.test(s)) return true;
+
+        // Any value that contains "**/**" (e.g. **/**/1970, **/**/1988) is incomplete
+        if (s.indexOf("**/**") !== -1) return true;
+
+        return false;
+      }
+
+      function markIncompleteFields() {
+        const fields = document.querySelectorAll("#home-quote-form input, #home-quote-form select, #home-quote-form textarea");
+
+        fields.forEach(function(el) {
+          // Don't bother styling checkboxes/radios for now
+          if (el.type === "checkbox" || el.type === "radio") {
+            el.classList.remove("incomplete");
+            return;
+          }
+
+          const required = el.getAttribute("data-required") === "true";
+          const val = el.value || "";
+          const isMasked = isMaskedOrPlaceholder(val, el);
+
+          el.classList.remove("incomplete");
+
+          // If it's required and empty -> incomplete
+          if (required && !val.trim()) {
+            el.classList.add("incomplete");
+            return;
+          }
+
+          // If it looks masked/placeholder -> incomplete even if not required
+          if (isMasked) {
+            el.classList.add("incomplete");
+          }
+        });
+      }
+
+      function attachValidationListeners() {
+        const fields = document.querySelectorAll("#home-quote-form input, #home-quote-form select, #home-quote-form textarea");
+        fields.forEach(function(el) {
+          const evt = (el.tagName === "SELECT" || el.type === "checkbox" || el.type === "radio") ? "change" : "input";
+          el.addEventListener(evt, markIncompleteFields);
+        });
       }
 
       function autofillFromQueryParam() {
@@ -681,6 +755,9 @@
       // Run immediately (script is at end of body, so DOM is ready)
       autofillFromQueryParam();
       initConditional();
+      attachValidationListeners();
+      markIncompleteFields();  // first pass after autofill
+
     })();
   </script>
 
