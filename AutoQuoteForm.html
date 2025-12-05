@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Personal Auto Quote - Middle Creek Insurance</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+      background: #f3f4f6;
+      margin: 0;
+      padding: 20px;
+      color: #111827;
+    }
+    h1 {
+      margin-top: 0;
+      text-align: center;
+    }
+    form {
+      max-width: 1100px;
+      margin: 0 auto;
+      background: #ffffff;
+      padding: 20px 24px 30px;
+      border-radius: 8px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    }
+    fieldset {
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      margin-bottom: 18px;
+      padding: 14px 16px 16px;
+    }
+    legend {
+      padding: 0 6px;
+      font-weight: 600;
+    }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px 18px;
+    }
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px 16px;
+    }
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px 12px;
+    }
+    .form-row {
+      margin-bottom: 8px;
+    }
+    label {
+      display: block;
+      font-size: 0.9rem;
+      margin-bottom: 2px;
+    }
+    input[type="text"],
+    input[type="email"],
+    input[type="number"],
+    input[type="date"],
+    select,
+    textarea {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 4px 6px;
+      border-radius: 4px;
+      border: 1px solid #d1d5db;
+      font-size: 0.9rem;
+    }
+    textarea {
+      min-height: 70px;
+      resize: vertical;
+    }
+    .inline-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .inline-group label {
+      display: inline-flex;
+      align-items: center;
+      margin-bottom: 0;
+      font-size: 0.9rem;
+    }
+    .inline-group input[type="radio"] {
+      margin-right: 4px;
+    }
+    .section-title {
+      font-weight: 600;
+      margin: 14px 0 6px;
+    }
+    .submit-row {
+      text-align: center;
+      margin-top: 18px;
+    }
+    button {
+      padding: 8px 18px;
+      border-radius: 999px;
+      border: none;
+      font-size: 0.95rem;
+      cursor: pointer;
+      background: #0f4c81;
+      color: #ffffff;
+    }
+  </style>
+</head>
+<body>
+  <h1>Personal Auto Quote Sheet</h1>
+
+  <form id="auto-quote-form">
+    <!-- A. Header / Policy Info -->
+    <fieldset>
+      <legend>Policy & Insured Information</legend>
+      <div class="grid-2">
+        <div class="form-row">
+          <label for="agency_name">Agency Name</label>
+          <input type="text" id="agency_name" name="agency_name" value="Middle Creek Insurance" />
+        </div>
+        <div class="form-row">
+          <label for="policy_eff_date">Policy Eff Date</label>
+          <input type="date" id="policy_eff_date" name="policy_eff_date" />
+        </div>
+
+        <div class="form-row">
+          <label for="named_insured">Named Insured</label>
+          <input type="text" id="named_insured" name="named_insured" />
+        </div>
+        <div class="form-row">
+          <label for="insured_email">Insured Email</label>
+          <input type="email" id="insured_email" name="insured_email" />
+        </div>
+
+        <div class="form-row" style="grid-column: 1 / -1;">
+          <label for="garaging_address">Garaging Address</label>
+          <input type="text" id="garaging_address" name="garaging_address" />
+        </div>
+
+        <div class="form-row">
+          <label for="city">City</label>
+          <input type="text" id="city" name="city" />
+        </div>
+        <div class="form-row">
+          <label for="zip_code">Zip Code</label>
+          <input type="text" id="zip_code" name="zip_code" />
+        </div>
+
+        <div class="form-row">
+          <label for="county">County</label>
+          <input type="text" id="county" name="county" />
+        </div>
+        <div class="form-row">
+          <label for="prior_carrier_premium">Prior Carrier Premium ($)</label>
+          <input type="text" id="prior_carrier_premium" name="prior_carrier_premium" />
+        </div>
+
+        <div class="form-row">
+          <label for="prior_policy_term">Is prior policy 6 or 12 month?</label>
+          <select id="prior_policy_term" name="prior_policy_term">
+            <option value="">Select…</option>
+            <option value="6">6 month</option>
+            <option value="12">12 month</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="grid-2" style="margin-top: 10px;">
+        <div class="form-row">
+          <label for="limit_of_liability">Limit of Liability</label>
+          <input type="text" id="limit_of_liability" name="limit_of_liability" />
+        </div>
+        <div class="form-row">
+          <label for="med_pay_limit">Med Pay Limit</label>
+          <input type="text" id="med_pay_limit" name="med_pay_limit" />
+        </div>
+
+        <div class="form-row">
+          <label for="um_limit">U/M Limit</label>
+          <input type="text" id="um_limit" name="um_limit" />
+        </div>
+        <div class="form-row">
+          <label for="uim_limit">UIM Limit</label>
+          <input type="text" id="uim_limit" name="uim_limit" />
+        </div>
+      </div>
+
+      <div class="form-row" style="margin-top: 10px;">
+        <span class="section-title">Continuous Coverage (12 months)</span>
+        <div class="inline-group">
+          <span>Has the insured had 12 months of continuous coverage?</span>
+          <label><input type="radio" name="continuous_coverage_12mo" value="Yes" /> Yes</label>
+          <label><input type="radio" name="continuous_coverage_12mo" value="No" /> No</label>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <label for="date_policy_cancelled">If NO, date policy was cancelled</label>
+        <input type="date" id="date_policy_cancelled" name="date_policy_cancelled" />
+      </div>
+    </fieldset>
+
+    <!-- B. Vehicles 1–4 -->
+    <fieldset>
+      <legend>Vehicles</legend>
+
+      <!-- Vehicle template repeated 4 times; IDs/names numbered -->
+      <div class="section-title">Vehicle #1</div>
+      <div class="grid-4">
+        <div class="form-row">
+          <label for="veh1_class_use_type">Class Use Type</label>
+          <input type="text" id="veh1_class_use_type" name="veh1_class_use_type" />
+        </div>
+        <div class="form-row" style="grid-column: span 3;">
+          <label for="veh1_vin">VIN #</label>
+          <input type="text" id="veh1_vin" name="veh1_vin" />
+        </div>
+
+        <div class="form-row">
+          <label for="veh1_year">Year</label>
+          <input type="text" id="veh1_year" name="veh1_year" />
+        </div>
+        <div class="form-row">
+          <label for="veh1_make">Make</label>
+          <input type="text" id="veh1_make" name="veh1_make" />
+        </div>
+        <div class="form-row">
+          <label for="veh1_model">Model</label>
+          <input type="text" id="veh1_model" name="veh1_model" />
+        </div>
+      </div>
+      <div class="grid-4">
+        <div class="form-row">
+          <label for="veh1_comp_ded">Comp Ded</label>
+          <input type="text" id="veh1_comp_ded" name="veh1_comp_ded" />
+        </div>
+        <div class="form-row">
+          <label for="veh1_coll_ded">Coll Ded</label>
+          <input type="text" id="veh1_coll_ded" name="veh1_coll_ded" />
+        </div>
+        <div class="form-row">
+          <label for="veh1_tow_limit">Tow Limit</label>
+          <input type="text" id="veh1_tow_limit" name="veh1_tow_limit" />
+        </div>
+        <div class="form-row">
+          <label for="veh1_rental_limit">Rental Limit</label>
+          <input type="text" id="veh1_rental_limit" name="veh1_rental_limit" />
+        </div>
+      </div>
+
+      <hr />
+
+      <div class="section-title">Vehicle #2</div>
+      <div class="grid-4">
+        <div class="form-row">
+          <label for="veh2_class_use_type">Class Use Type</label>
+          <input type="text" id="veh2_class_use_type" name="veh2_class_use_type" />
+        </div>
+        <div class="form-row" style="grid-column: span 3;">
+          <label for="veh2_vin">VIN #</label>
+          <input type="text" id="veh2_vin" name="veh2_vin" />
+        </div>
+
+        <div class="form-row">
+          <label for="veh2_year">Year</label>
+          <input type="text" id="veh2_year" name="veh2_year" />
+        </div>
+        <div class="form-row">
+          <label for="veh2_make">Make</label>
+          <input type="text" id="veh2_make" name="veh2_make" />
+        </div>
+        <div class="form-row">
+          <label for="veh2_model">Model</label>
+          <input type="text" id="veh2_model" name="veh2_model" />
+        </div>
+      </div>
+      <div class="grid-4">
+        <div class="form-row">
+          <label for="veh2_comp_ded">Comp Ded</label>
+          <input type="text" id="veh2_comp_ded" name="veh2_comp_ded" />
+        </div>
+        <div class="form-row">
+          <label for="veh2_coll_ded">Coll Ded</label>
+          <input type="text" id="veh2_coll_ded" name="veh2_coll_ded" />
+        </div>
+        <div class="form-row">
+          <label for="veh2_tow_limit">Tow Limit</label>
+          <input type="text" id="veh2_tow_limit" name="veh2_tow_limit" />
+        </div>
+        <div class="form-row">
+          <label for="veh2_rental_limit">Rental Limit</label>
+          <input type="text" id="veh2_rental_limit" name="veh2_rental_limit" />
+        </div>
+      </div>
+
+      <hr />
+
+      <div class="section-title">Vehicle #3</div>
+      <div class="grid-4">
+        <div class="form-row">
+          <label for="veh3_class_use_type">Class Use Type</label>
+          <input type="text" id="veh3_class_use_type" name="veh3_class_use_type" />
+        </div>
+        <div class="form-row" style="grid-column: span 3;">
+          <label for="veh3_vin">VIN #</label>
+          <input type="text" id="veh3_vin" name="veh3_vin" />
+        </div>
+
+        <div class="form-row">
+          <label for="veh3_year">Year</label>
+          <input type="text" id="veh3_year" name="veh3_year" />
+        </div>
+        <div class="form-row">
+          <label for="veh3_make">Make</label>
+          <input type="text" id="veh3_make" name="veh3_make" />
+        </div>
+        <div class="form-row">
+          <label for="veh3_model">Model</label>
+          <input type="text" id="veh3_model" name="veh3_model" />
+        </div>
+      </div>
+      <div class="grid-4">
+        <div class="form-row">
+          <label for="veh3_comp_ded">Comp Ded</label>
+          <input type="text" id="veh3_comp_ded" name="veh3_comp_ded" />
+        </div>
+        <div class="form-row">
+          <label for="veh3_coll_ded">Coll Ded</label>
+          <input type="text" id="veh3_coll_ded" name="veh3_coll_ded" />
+        </div>
+        <div class="form-row">
+          <label for="veh3_tow_limit">Tow Limit</label>
+          <input type="text" id="veh3_tow_limit" name="veh3_tow_limit" />
+        </div>
+        <div class="form-row">
+          <label for="veh3_rental_limit">Rental Limit</label>
+          <input type="text" id="veh3_rental_limit" name="veh3_rental_limit" />
+        </div>
+      </div>
+
+      <hr />
+
+      <div class="section-title">Vehicle #4</div>
+      <div class="grid-4">
+        <div class="form-row">
+          <label for="veh4_class_use_type">Class Use Type</label>
+          <input type="text" id="veh4_class_use_type" name="veh4_class_use_type" />
+        </div>
+        <div class="form-row" style="grid-column: span 3;">
+          <label for="veh4_vin">VIN #</label>
+          <input type="text" id="veh4_vin" name="veh4_vin" />
+        </div>
+
+        <div class="form-row">
+          <label for="veh4_year">Year</label>
+          <input type="text" id="veh4_year" name="veh4_year" />
+        </div>
+        <div class="form-row">
+          <label for="veh4_make">Make</label>
+          <input type="text" id="veh4_make" name="veh4_make" />
+        </div>
+        <div class="form-row">
+          <label for="veh4_model">Model</label>
+          <input type="text" id="veh4_model" name="veh4_model" />
+        </div>
+      </div>
+      <div class="grid-4">
+        <div class="form-row">
+          <label for="veh4_comp_ded">Comp Ded</label>
+          <input type="text" id="veh4_comp_ded" name="veh4_comp_ded" />
+        </div>
+        <div class="form-row">
+          <label for="veh4_coll_ded">Coll Ded</label>
+          <input type="text" id="veh4_coll_ded" name="veh4_coll_ded" />
+        </div>
+        <div class="form-row">
+          <label for="veh4_tow_limit">Tow Limit</label>
+          <input type="text" id="veh4_tow_limit" name="veh4_tow_limit" />
+        </div>
+        <div class="form-row">
+          <label for="veh4_rental_limit">Rental Limit</label>
+          <input type="text" id="veh4_rental_limit" name="veh4_rental_limit" />
+        </div>
+      </div>
+    </fieldset>
+
+    <!-- C. Drivers 1–4 -->
+    <fieldset>
+      <legend>Drivers</legend>
+
+      <!-- Driver 1 -->
+      <div class="section-title">Driver #1</div>
+      <div class="grid-3">
+        <div class="form-row" style="grid-column: 1 / -1;">
+          <label for="drv1_name">Name</label>
+          <input type="text" id="drv1_name" name="drv1_name" />
+        </div>
+        <div class="form-row">
+          <label for="drv1_dob">DOB</label>
+          <input type="date" id="drv1_dob" name="drv1_dob" />
+        </div>
+        <div class="form-row">
+          <label for="drv1_dl">DL #</label>
+          <input type="text" id="drv1_dl" name="drv1_dl" />
+        </div>
+        <div class="form-row">
+          <label for="drv1_state">State</label>
+          <input type="text" id="drv1_state" name="drv1_state" maxlength="2" />
+        </div>
+        <div class="form-row">
+          <label for="drv1_ssn">SS #</label>
+          <input type="text" id="drv1_ssn" name="drv1_ssn" />
+        </div>
+        <div class="form-row" style="grid-column: 1 / -1;">
+          <label for="drv1_occupation">Occupation</label>
+          <input type="text" id="drv1_occupation" name="drv1_occupation" />
+        </div>
+      </div>
+
+      <hr />
+
+      <!-- Driver 2 -->
+      <div class="section-title">Driver #2</div>
+      <div class="grid-3">
+        <div class="form-row" style="grid-column: 1 / -1;">
+          <label for="drv2_name">Name</label>
+          <input type="text" id="drv2_name" name="drv2_name" />
+        </div>
+        <div class="form-row">
+          <label for="drv2_dob">DOB</label>
+          <input type="date" id="drv2_dob" name="drv2_dob" />
+        </div>
+        <div class="form-row">
+          <label for="drv2_dl">DL #</label>
+          <input type="text" id="drv2_dl" name="drv2_dl" />
+        </div>
+        <div class="form-row">
+          <label for="drv2_state">State</label>
+          <input type="text" id="drv2_state" name="drv2_state" maxlength="2" />
+        </div>
+        <div class="form-row">
+          <label for="drv2_ssn">SS #</label>
+          <input type="text" id="drv2_ssn" name="drv2_ssn" />
+        </div>
+        <div class="form-row" style="grid-column: 1 / -1;">
+          <label for="drv2_occupation">Occupation</label>
+          <input type="text" id="drv2_occupation" name="drv2_occupation" />
+        </div>
+      </div>
+
+      <hr />
+
+      <!-- Driver 3 -->
+      <div class="section-title">Driver #3</div>
+      <div class="grid-3">
+        <div class="form-row" style="grid-column: 1 / -1;">
+          <label for="drv3_name">Name</label>
+          <input type="text" id="drv3_name" name="drv3_name" />
+        </div>
+        <div class="form-row">
+          <label for="drv3_dob">DOB</label>
+          <input type="date" id="drv3_dob" name="drv3_dob" />
+        </div>
+        <div class="form-row">
+          <label for="drv3_dl">DL #</label>
+          <input type="text" id="drv3_dl" name="drv3_dl" />
+        </div>
+        <div class="form-row">
+          <label for="drv3_state">State</label>
+          <input type="text" id="drv3_state" name="drv3_state" maxlength="2" />
+        </div>
+        <div class="form-row">
+          <label for="drv3_ssn">SS #</label>
+          <input type="text" id="drv3_ssn" name="drv3_ssn" />
+        </div>
+        <div class="form-row" style="grid-column: 1 / -1;">
+          <label for="drv3_occupation">Occupation</label>
+          <input type="text" id="drv3_occupation" name="drv3_occupation" />
+        </div>
+      </div>
+
+      <hr />
+
+      <!-- Driver 4 -->
+      <div class="section-title">Driver #4</div>
+      <div class="grid-3">
+        <div class="form-row" style="grid-column: 1 / -1;">
+          <label for="drv4_name">Name</label>
+          <input type="text" id="drv4_name" name="drv4_name" />
+        </div>
+        <div class="form-row">
+          <label for="drv4_dob">DOB</label>
+          <input type="date" id="drv4_dob" name="drv4_dob" />
+        </div>
+        <div class="form-row">
+          <label for="drv4_dl">DL #</label>
+          <input type="text" id="drv4_dl" name="drv4_dl" />
+        </div>
+        <div class="form-row">
+          <label for="drv4_state">State</label>
+          <input type="text" id="drv4_state" name="drv4_state" maxlength="2" />
+        </div>
+        <div class="form-row">
+          <label for="drv4_ssn">SS #</label>
+          <input type="text" id="drv4_ssn" name="drv4_ssn" />
+        </div>
+        <div class="form-row" style="grid-column: 1 / -1;">
+          <label for="drv4_occupation">Occupation</label>
+          <input type="text" id="drv4_occupation" name="drv4_occupation" />
+        </div>
+      </div>
+    </fieldset>
+
+    <!-- D. Home & Claims Info -->
+    <fieldset>
+      <legend>Home & Claims Information</legend>
+
+      <div class="form-row">
+        <label for="rent_or_own">Does the insured rent or own their home?</label>
+        <select id="rent_or_own" name="rent_or_own">
+          <option value="">Select…</option>
+          <option value="Rent">Rent</option>
+          <option value="Own">Own</option>
+        </select>
+      </div>
+
+      <div class="form-row">
+        <span class="section-title">Homeowners Policy</span>
+        <div class="inline-group">
+          <span>Is homeowners currently written through your agency?</span>
+          <label><input type="radio" name="home_currently_with_agency" value="Yes" /> Yes</label>
+          <label><input type="radio" name="home_currently_with_agency" value="No" /> No</label>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <label for="home_insurance_company">If YES, what is the name of insurance company?</label>
+        <input type="text" id="home_insurance_company" name="home_insurance_company" />
+      </div>
+
+      <div class="form-row">
+        <label for="claims_last_4_years">
+          Any claims in the last 4 years? (If yes, describe)
+        </label>
+        <textarea id="claims_last_4_years" name="claims_last_4_years"></textarea>
+      </div>
+    </fieldset>
+  </form>
+
+<script>
+(function() {
+  function getQueryParam(name) {
+    const params = new URLSearchParams(window.location.search);
+    return params.get(name);
+  }
+
+  function setVal(id, value) {
+    if (value == null || value === '') return;
+    const el = document.getElementById(id);
+    if (!el) return;
+
+    if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.tagName === 'SELECT') {
+      el.value = value;
+    }
+  }
+
+  function setRadio(name, value) {
+    if (!value) return;
+    const radios = document.querySelectorAll('input[type="radio"][name="' + name + '"]');
+    radios.forEach(r => {
+      if (r.value === value) {
+        r.checked = true;
+      }
+    });
+  }
+
+  // --- DOB Helper -----------------------
+    function normalizeDateToInput(value) {
+    if (!value) return '';
+    // Expect MM/DD/YYYY or M/D/YYYY
+    const m = value.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+    if (!m) return value; // fall back if unexpected format
+    let mm = m[1];
+    let dd = m[2];
+    const yyyy = m[3];
+    if (mm.length === 1) mm = '0' + mm;
+    if (dd.length === 1) dd = '0' + dd;
+    return `${yyyy}-${mm}-${dd}`;
+  }
+
+  // --- NEW: last-name & title helpers ---
+
+  function extractLastName(fullName) {
+    if (!fullName) return '';
+    const parts = fullName.trim().split(/\s+/);
+    if (parts.length === 0) return '';
+    // Take last word as last name, strip weird punctuation
+    return parts[parts.length - 1].replace(/[^A-Za-z'\-]/g, '');
+  }
+
+  function updateTitleFromNamedInsured() {
+    const input = document.getElementById('named_insured');
+    const baseTitle = 'Personal Auto Quote - Middle Creek Insurance';
+    if (!input) {
+      document.title = baseTitle;
+      return;
+    }
+    const lastName = extractLastName(input.value || '');
+    document.title = lastName ? (lastName + ' - ' + baseTitle) : baseTitle;
+  }
+
+  function fillFromUrlPayload() {
+    const param = getQueryParam('mci');
+    if (!param) {
+      console.log('No mci param found in URL; nothing to prefill.');
+      // Still update title based on whatever is in the field (manual typing)
+      updateTitleFromNamedInsured();
+      return;
+    }
+
+    let data;
+    try {
+      // Reverse of UTF-8 safe encoding:
+      // utf8Json = unescape(encodeURIComponent(json)); base64 = btoa(utf8Json)
+      const base64 = decodeURIComponent(param);
+      const binary = atob(base64);
+      const jsonStr = decodeURIComponent(escape(binary));
+      data = JSON.parse(jsonStr);
+    } catch (e) {
+      console.error('Error decoding mci payload:', e);
+      updateTitleFromNamedInsured();
+      return;
+    }
+
+    console.log('MCI Auto form – got payload:', data);
+
+    // ========== Policy & insured info ==========
+    setVal('named_insured',      data.named_insured);
+    setVal('insured_email',      data.insured_email);
+    setVal('garaging_address',   data.garaging_address);
+    setVal('city',               data.city);
+    setVal('zip_code',           data.zip_code);
+    setVal('county',             data.county);
+
+    setVal('prior_carrier_premium', data.prior_carrier_premium);
+    setVal('prior_policy_term',     data.prior_policy_term);
+
+    setVal('limit_of_liability', data.limit_of_liability);
+    setVal('med_pay_limit',      data.med_pay_limit);
+    setVal('um_limit',           data.um_limit);
+    setVal('uim_limit',          data.uim_limit);
+
+    // continuous coverage (radio group)
+    setRadio('continuous_coverage_12mo', data.continuous_coverage_12mo);
+    setVal('date_policy_cancelled', normalizeDateToInput(data.date_policy_cancelled));
+
+    // ========== Vehicles 1–4 ==========
+    setVal('veh1_class_use_type', data.veh1_class_use_type);
+    setVal('veh1_vin',            data.veh1_vin);
+    setVal('veh1_year',           data.veh1_year);
+    setVal('veh1_make',           data.veh1_make);
+    setVal('veh1_model',          data.veh1_model);
+    setVal('veh1_comp_ded',       data.veh1_comp_ded);
+    setVal('veh1_coll_ded',       data.veh1_coll_ded);
+    setVal('veh1_tow_limit',      data.veh1_tow_limit);
+    setVal('veh1_rental_limit',   data.veh1_rental_limit);
+
+    setVal('veh2_class_use_type', data.veh2_class_use_type);
+    setVal('veh2_vin',            data.veh2_vin);
+    setVal('veh2_year',           data.veh2_year);
+    setVal('veh2_make',           data.veh2_make);
+    setVal('veh2_model',          data.veh2_model);
+    setVal('veh2_comp_ded',       data.veh2_comp_ded);
+    setVal('veh2_coll_ded',       data.veh2_coll_ded);
+    setVal('veh2_tow_limit',      data.veh2_tow_limit);
+    setVal('veh2_rental_limit',   data.veh2_rental_limit);
+
+    setVal('veh3_class_use_type', data.veh3_class_use_type);
+    setVal('veh3_vin',            data.veh3_vin);
+    setVal('veh3_year',           data.veh3_year);
+    setVal('veh3_make',           data.veh3_make);
+    setVal('veh3_model',          data.veh3_model);
+    setVal('veh3_comp_ded',       data.veh3_comp_ded);
+    setVal('veh3_coll_ded',       data.veh3_coll_ded);
+    setVal('veh3_tow_limit',      data.veh3_tow_limit);
+    setVal('veh3_rental_limit',   data.veh3_rental_limit);
+
+    setVal('veh4_class_use_type', data.veh4_class_use_type);
+    setVal('veh4_vin',            data.veh4_vin);
+    setVal('veh4_year',           data.veh4_year);
+    setVal('veh4_make',           data.veh4_make);
+    setVal('veh4_model',          data.veh4_model);
+    setVal('veh4_comp_ded',       data.veh4_comp_ded);
+    setVal('veh4_coll_ded',       data.veh4_coll_ded);
+    setVal('veh4_tow_limit',      data.veh4_tow_limit);
+    setVal('veh4_rental_limit',   data.veh4_rental_limit);
+
+    // ========== Drivers 1–4 ==========
+    setVal('drv1_name',       data.drv1_name);
+    setVal('drv1_dob', normalizeDateToInput(data.drv1_dob));
+    setVal('drv1_dl',         data.drv1_dl);
+    setVal('drv1_state',      data.drv1_state);
+    setVal('drv1_ssn',        data.drv1_ssn);
+    setVal('drv1_occupation', data.drv1_occupation);
+
+    setVal('drv2_name',       data.drv2_name);
+    setVal('drv2_dob', normalizeDateToInput(data.drv2_dob));
+    setVal('drv2_dl',         data.drv2_dl);
+    setVal('drv2_state',      data.drv2_state);
+    setVal('drv2_ssn',        data.drv2_ssn);
+    setVal('drv2_occupation', data.drv2_occupation);
+
+    setVal('drv3_name',       data.drv3_name);
+    setVal('drv3_dob', normalizeDateToInput(data.drv3_dob));
+    setVal('drv3_dl',         data.drv3_dl);
+    setVal('drv3_state',      data.drv3_state);
+    setVal('drv3_ssn',        data.drv3_ssn);
+    setVal('drv3_occupation', data.drv3_occupation);
+
+    setVal('drv4_name',       data.drv4_name);
+    setVal('drv4_dob', normalizeDateToInput(data.drv4_dob));
+    setVal('drv4_dl',         data.drv4_dl);
+    setVal('drv4_state',      data.drv4_state);
+    setVal('drv4_ssn',        data.drv4_ssn);
+    setVal('drv4_occupation', data.drv4_occupation);
+
+    // ========== Home & claims ==========
+    setVal('rent_or_own', data.rent_or_own);
+    setRadio('home_currently_with_agency', data.home_currently_with_agency);
+    setVal('home_insurance_company', data.home_insurance_company);
+    setVal('claims_last_4_years', data.claims_last_4_years);
+
+    // After filling named_insured from payload, update title
+    updateTitleFromNamedInsured();
+  }
+
+  // On load: fill from URL + wire up live title updates when user edits Name
+  window.addEventListener('load', function() {
+    fillFromUrlPayload();
+
+    const namedInput = document.getElementById('named_insured');
+    if (namedInput) {
+      // Initial update in case there was no payload
+      updateTitleFromNamedInsured();
+      // Keep title in sync if user edits the name
+      namedInput.addEventListener('input', updateTitleFromNamedInsured);
+    }
+  });
+})();
+</script>
+
+</body>
+</html>

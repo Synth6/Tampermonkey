@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Homeowners Quote Sheet</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+      background: #f3f4f6;
+      margin: 0;
+      padding: 20px;
+      color: #111827;
+    }
+    h1 {
+      margin-top: 0;
+      text-align: center;
+    }
+    form {
+      max-width: 1100px;
+      margin: 0 auto;
+      background: #ffffff;
+      padding: 20px 24px 30px;
+      border-radius: 8px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+    }
+    .section {
+      margin-top: 20px;
+      padding-top: 10px;
+      border-top: 1px solid #e5e7eb;
+    }
+    .section:first-of-type {
+      border-top: none;
+      padding-top: 0;
+    }
+    .section h2 {
+      margin: 0 0 10px;
+      font-size: 1.05rem;
+      color: #0f4c81;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px 20px;
+    }
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px 20px;
+    }
+    .full {
+      grid-column: 1 / -1;
+    }
+    label {
+      display: block;
+      font-size: 0.8rem;
+      color: #4b5563;
+      margin-bottom: 3px;
+    }
+    input, select, textarea {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 6px 8px;
+      border-radius: 4px;
+      border: 1px solid #d1d5db;
+      font-size: 0.9rem;
+    }
+    textarea {
+      min-height: 60px;
+      resize: vertical;
+    }
+    .hint {
+      font-size: 0.7rem;
+      color: #9ca3af;
+    }
+    option.disabled {
+      color: #9ca3af;
+    }
+    input[type="checkbox"],
+    input[type="radio"] {
+      width: auto;
+      margin-right: 4px;
+    }
+    .inline-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <h1>Homeowners Quote Sheet</h1>
+
+  <form>
+    <!-- 1. Header / Quote Basics -->
+    <div class="section">
+      <h2>1. Quote Basics</h2>
+      <div class="grid">
+        <div>
+          <label for="home_agencyName">Agency Name</label>
+          <input id="home_agencyName" type="text" value="Middle Creek Insurance">
+        </div>
+        <div>
+          <label for="home_policyEffDate">Policy Eff Date</label>
+          <input id="home_policyEffDate" type="date">
+        </div>
+
+        <div>
+          <label for="home_currentCarrier">Current Carrier</label>
+          <select id="home_currentCarrier">
+            <option value="">-- Select --</option>
+            <option class="disabled" disabled="disabled">---------------------------------------------</option>
+            <option value="ErieSecure">ERIE - Homeowners Company</option>
+            <option value="HomeProtector">ERIE - Homeowners Exchange</option>
+            <option value="DwellingProperty">ERIE - Dwelling Property</option>
+            <option value="UltrasureforLandlords">ERIE - Ultrasure for Landlords</option>
+            <option value="MobileHomeProtector">ERIE - Mobile HomeProtector</option>
+            <option class="disabled" disabled="disabled">---------------------------------------------</option>
+            <option value="Allstate">Allstate</option>
+            <option value="AmericanFamily">American Family</option>
+            <option value="Chubb">Chubb</option>
+            <option value="Cincinnati">Cincinnati</option>
+            <option value="Farmers">Farmers</option>
+            <option value="Hartford">Hartford</option>
+            <option value="IllinoisFairPlan">Illinois Fair Plan</option>
+            <option value="KentuckyFarmBureau">Kentucky Farm Bureau</option>
+            <option value="LibertyMutual">Liberty Mutual</option>
+            <option value="Nationwide">Nationwide</option>
+            <option value="None">No Coverage</option>
+            <option value="Safeco">Safeco</option>
+            <option value="StateFarm">State Farm</option>
+            <option value="Travelers">Travelers</option>
+            <option value="USAA">USAA</option>
+            <option value="Westfield">Westfield</option>
+            <option value="Other">Other Carrier</option>
+          </select>
+        </div>
+        <div>
+          <label for="home_currentPremium">Current Carrier Premium ($)</label>
+          <input id="home_currentPremium" type="text">
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. Insured & Property Info -->
+    <div class="section">
+      <h2>2. Insured &amp; Property Information</h2>
+      <div class="grid">
+        <div>
+          <label for="home_namedInsured">Named Insured</label>
+          <input id="home_namedInsured" type="text">
+        </div>
+        <div>
+          <label for="home_insuredEmail">Insured Email</label>
+          <input id="home_insuredEmail" type="text">
+        </div>
+
+        <div class="full">
+          <label for="home_propertyAddress">Property Address</label>
+          <input id="home_propertyAddress" type="text">
+        </div>
+
+        <div>
+          <label for="home_city">City</label>
+          <input id="home_city" type="text">
+        </div>
+        <div>
+          <label for="home_zip">Zip Code</label>
+          <input id="home_zip" type="text">
+        </div>
+        <div>
+          <label for="home_state">State</label>
+          <input id="home_state" type="text">
+        </div>
+        <div>
+          <label for="home_county">County</label>
+          <input id="home_county" type="text">
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. Coverage History & Form -->
+    <div class="section">
+      <h2>3. Coverage History &amp; HO Form</h2>
+      <div class="grid-3">
+        <div>
+          <label>Has the insured had 12 months of continuous coverage?</label>
+          <div class="inline-group">
+            <input id="home_continuousCoverage" type="checkbox">
+            <span>Yes</span>
+          </div>
+        </div>
+        <div>
+          <label for="home_cancelDate">If NO, date policy was cancelled</label>
+          <input id="home_cancelDate" type="date">
+        </div>
+        <div>
+          <label for="home_hoForm">HO Form (3 / 4 / 6 / HE7)</label>
+          <select id="home_hoForm">
+            <option value=""></option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="6">6</option>
+            <option value="HE7">HE7</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. Limits & Values -->
+    <div class="section">
+      <h2>4. Limits &amp; Dwelling Info</h2>
+      <div class="grid">
+        <div>
+          <label for="home_dwellingValue">Dwelling Value ($)</label>
+          <input id="home_dwellingValue" type="text">
+        </div>
+        <div>
+        <label for="home_liabLimit">Liability Limit ($)</label>
+        <select id="home_liabLimit">
+            <option value=""></option>
+            <option value="100000">100,000</option>
+            <option value="200000">200,000</option>
+            <option value="300000">300,000</option>
+            <option value="400000">400,000</option>
+            <option value="500000">500,000</option>
+            <option value="750000">750,000</option>
+            <option value="1000000">1,000,000</option>
+        </select>
+        </div>
+        <div>
+        <label for="home_medPayLimit">Med Pay Limit ($)</label>
+        <select id="home_medPayLimit">
+            <option value=""></option>
+            <option value="1000">1,000</option>
+            <option value="2000">2,000</option>
+            <option value="3000">3,000</option>
+            <option value="4000">4,000</option>
+            <option value="5000">5,000</option>
+        </select>
+
+        </div>
+
+        <div>
+        <label for="home_protectionClass">Protection Class / Fire District</label>
+        <input id="home_protectionClass" type="text">
+        </div>
+
+        <div>
+        <label for="home_yearBuilt">Year Built</label>
+        <input id="home_yearBuilt" type="text" placeholder="yyyy">
+        </div>
+
+        <div>
+          <label for="home_sqFootage">Sq. Footage</label>
+          <input id="home_sqFootage" type="text">
+        </div>
+
+        <div class="full">
+          <label for="home_dwellingUpdates">Dwelling Updates (include year complete)</label>
+          <textarea id="home_dwellingUpdates"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. Construction & Deductibles -->
+    <div class="grid">
+    <div>
+        <label for="home_constructionFrame">Construction Type</label>
+        <select id="home_constructionFrame">
+        <option value="">-- Select --</option>
+        <option value="BrickOrMasonry">Brick or Masonry</option>
+        <option value="BrickOrMasonryVeneer">Brick Veneer or Masonry Veneer</option>
+        <option value="FireResistive">Fire Resistive, Non-Combustible or Masonry Non-Combustible</option>
+        <option value="Frame">Frame</option>
+        <option value="Log">Log</option>
+        <option value="Stone">Stone</option>
+        <option value="StoneVeneer">Stone Veneer</option>
+        </select>
+    </div>
+    <div>
+        <label for="home_deductible">Deductible ($)</label>
+        <input id="home_deductible" type="text">
+    </div>
+    </div>
+
+      <div class="grid">
+        <div>
+          <label>Fire Extinguishers</label>
+          <div class="inline-group">
+            <input id="home_fireExtinguishers" type="checkbox">
+            <span>Yes</span>
+          </div>
+        </div>
+        <div>
+          <label>Dead Bolts</label>
+          <div class="inline-group">
+            <input id="home_deadBolts" type="checkbox">
+            <span>Yes</span>
+          </div>
+        </div>
+        <div>
+          <label>Smoke Detectors</label>
+          <div class="inline-group">
+            <input id="home_smokeDetectors" type="checkbox">
+            <span>Yes</span>
+          </div>
+        </div>
+        <div>
+          <label>Central Heat</label>
+          <div class="inline-group">
+            <input id="home_centralHeat" type="checkbox">
+            <span>Yes</span>
+          </div>
+        </div>
+        <div>
+          <label>Central Alarm</label>
+          <div class="inline-group">
+            <input id="home_centralAlarm" type="checkbox">
+            <span>Yes</span>
+          </div>
+        </div>
+        <div>
+          <label>Local Alarm</label>
+          <div class="inline-group">
+            <input id="home_localAlarm" type="checkbox">
+            <span>Yes</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 6. Insured / Second Named Insured Details -->
+    <div class="section">
+      <h2>6. Insured &amp; Second Named Insured Details</h2>
+      <div class="grid">
+        <div>
+          <label for="home_insuredBirthdate">Insured Birthdate</label>
+          <input id="home_insuredBirthdate" type="date">
+        </div>
+        <div>
+          <label for="home_insuredSSN">Insured SS#</label>
+          <input id="home_insuredSSN" type="text">
+        </div>
+
+        <div class="full">
+          <label for="home_occupation">Occupation</label>
+          <input id="home_occupation" type="text">
+        </div>
+
+        <div>
+            <label for="home_secondNamedBirthdate">Second Named Insured Birthdate</label>
+            <input
+            id="home_secondNamedBirthdate"
+            type="text"
+            placeholder="**/**/1970 or MM/DD/YYYY if known"
+            >
+        </div>
+        <div>
+          <label for="home_secondNamedSSN">Second Named Insured SS#</label>
+          <input id="home_secondNamedSSN" type="text">
+        </div>
+      </div>
+    </div>
+
+    <!-- 7. Pool / Trampoline / Dogs -->
+    <div class="section">
+      <h2>7. Pool, Trampoline &amp; Dogs</h2>
+      <div class="grid">
+        <!-- Swimming Pool + fenced radios -->
+        <div>
+          <label>Swimming Pool</label>
+          <div class="inline-group">
+            <input id="home_swimmingPool" type="checkbox">
+            <span>Yes</span>
+          </div>
+        </div>
+        <div id="poolFencedGroup" class="hidden">
+          <label>If YES, fenced?</label>
+          <div class="inline-group">
+            <input type="radio" id="home_poolFencedYes" name="home_poolFenced" value="Yes">
+            <label for="home_poolFencedYes">Yes</label>
+            <input type="radio" id="home_poolFencedNo" name="home_poolFenced" value="No">
+            <label for="home_poolFencedNo">No</label>
+          </div>
+        </div>
+
+        <!-- Trampoline checkbox -->
+        <div>
+          <label>Trampoline</label>
+          <div class="inline-group">
+            <input id="home_trampoline" type="checkbox">
+            <span>Yes</span>
+          </div>
+        </div>
+
+        <!-- Dogs checkbox + conditional details -->
+        <div>
+          <label>Dog(s)</label>
+          <div class="inline-group">
+            <input id="home_dogs" type="checkbox">
+            <span>Yes</span>
+          </div>
+        </div>
+
+        <div id="dogDetailsGroup" class="full hidden">
+          <label for="home_dogBreeds">If YES to dog(s), what breed(s)?</label>
+          <input id="home_dogBreeds" type="text">
+          <label for="home_dogBiteHistory">If YES to dog(s), any bite history?</label>
+          <textarea id="home_dogBiteHistory"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- 8. Losses & Endorsements -->
+    <div class="section">
+      <h2>8. Loss History &amp; Special Endorsements</h2>
+      <div class="grid">
+        <div>
+          <label>Any losses in the last 3 years?</label>
+          <div class="inline-group">
+            <input id="home_anyLosses3yrs" type="checkbox">
+            <span>Yes</span>
+          </div>
+        </div>
+      </div>
+      <div class="grid">
+        <div id="lossDetailsGroup" class="full hidden">
+          <label for="home_lossDescription">If YES, please describe</label>
+          <textarea id="home_lossDescription"></textarea>
+        </div>
+      </div>
+
+      <div class="grid">
+        <div>
+          <label>Any special endorsements (jewelry, schedules, guns, fine arts, etc.)?</label>
+          <div class="inline-group">
+            <input id="home_anySpecialEndorsements" type="checkbox">
+            <span>Yes</span>
+          </div>
+        </div>
+      </div>
+      <div class="grid">
+        <div id="endorsementDetailsGroup" class="full hidden">
+          <label for="home_specialEndorsementDetails">If YES, please describe</label>
+          <textarea id="home_specialEndorsementDetails"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- 9. Auto & Mortgage Info -->
+    <div class="section">
+      <h2>9. Auto &amp; Mortgage</h2>
+      <div class="grid">
+        <!-- Auto with agency checkbox + conditional company name -->
+        <div>
+          <label>Is the insured's auto currently written through your agency?</label>
+          <div class="inline-group">
+            <input id="home_autoWithAgency" type="checkbox">
+            <span>Yes</span>
+          </div>
+        </div>
+        <div id="autoCompanyGroup" class="hidden">
+          <label for="home_autoCompany">
+            If YES, name of insurance company
+          </label>
+          <input id="home_autoCompany" type="text">
+        </div>
+
+        <!-- Mortgage checkbox -->
+        <div>
+          <label>Does the insured have a mortgage?</label>
+          <div class="inline-group">
+            <input id="home_hasMortgage" type="checkbox">
+            <span>Yes</span>
+          </div>
+        </div>
+
+        <!-- Payment method dropdown -->
+        <div>
+          <label for="home_paymentMethod">
+            WILL THIS POLICY BE PAID FOR BY THE INSURED, OR WILL IT BE MORTGAGE BILLED?
+          </label>
+          <select id="home_paymentMethod">
+            <option value=""></option>
+            <option value="Insured">Insured</option>
+            <option value="Mortgage billed">Mortgage billed</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- 10. Additional Notes -->
+    <div class="section">
+      <h2>10. Additional Notes</h2>
+      <div class="grid">
+        <div class="full">
+          <label for="home_notes">Notes</label>
+          <textarea id="home_notes"></textarea>
+        </div>
+      </div>
+      <p class="hint">Tip: Use your browser’s Print dialog to save this as PDF for Jones.</p>
+    </div>
+  </form>
+
+  <!-- Autofill + conditional logic -->
+  <!-- Autofill + conditional logic -->
+  <script>
+    (function() {
+      function updateConditionalSections() {
+        const poolCheckbox = document.getElementById("home_swimmingPool");
+        const poolFencedGroup = document.getElementById("poolFencedGroup");
+        if (poolCheckbox && poolFencedGroup) {
+          poolFencedGroup.classList.toggle("hidden", !poolCheckbox.checked);
+        }
+
+        const dogsCheckbox = document.getElementById("home_dogs");
+        const dogDetailsGroup = document.getElementById("dogDetailsGroup");
+        if (dogsCheckbox && dogDetailsGroup) {
+          dogDetailsGroup.classList.toggle("hidden", !dogsCheckbox.checked);
+        }
+
+        const lossesCheckbox = document.getElementById("home_anyLosses3yrs");
+        const lossDetailsGroup = document.getElementById("lossDetailsGroup");
+        if (lossesCheckbox && lossDetailsGroup) {
+          lossDetailsGroup.classList.toggle("hidden", !lossesCheckbox.checked);
+        }
+
+        const endorsementsCheckbox = document.getElementById("home_anySpecialEndorsements");
+        const endorsementDetailsGroup = document.getElementById("endorsementDetailsGroup");
+        if (endorsementsCheckbox && endorsementDetailsGroup) {
+          endorsementDetailsGroup.classList.toggle("hidden", !endorsementsCheckbox.checked);
+        }
+
+        const autoCheckbox = document.getElementById("home_autoWithAgency");
+        const autoCompanyGroup = document.getElementById("autoCompanyGroup");
+        if (autoCheckbox && autoCompanyGroup) {
+          autoCompanyGroup.classList.toggle("hidden", !autoCheckbox.checked);
+        }
+      }
+
+      function initConditional() {
+        const poolCheckbox = document.getElementById("home_swimmingPool");
+        const dogsCheckbox = document.getElementById("home_dogs");
+        const lossesCheckbox = document.getElementById("home_anyLosses3yrs");
+        const endorsementsCheckbox = document.getElementById("home_anySpecialEndorsements");
+        const autoCheckbox = document.getElementById("home_autoWithAgency");
+
+        if (poolCheckbox) {
+          poolCheckbox.addEventListener("change", updateConditionalSections);
+        }
+        if (dogsCheckbox) {
+          dogsCheckbox.addEventListener("change", updateConditionalSections);
+        }
+        if (lossesCheckbox) {
+          lossesCheckbox.addEventListener("change", updateConditionalSections);
+        }
+        if (endorsementsCheckbox) {
+          endorsementsCheckbox.addEventListener("change", updateConditionalSections);
+        }
+        if (autoCheckbox) {
+          autoCheckbox.addEventListener("change", updateConditionalSections);
+        }
+
+        // Initial state
+        updateConditionalSections();
+      }
+
+      function fill(id, value) {
+        if (value == null) return;
+        const el = document.getElementById(id);
+        if (!el) return;
+
+        if (el.tagName === "TEXTAREA" || el.tagName === "SELECT") {
+          el.value = value;
+        } else if (el.tagName === "INPUT") {
+          if (el.type === "checkbox") {
+            el.checked = !!value && String(value).toLowerCase() !== "no";
+          } else if (el.type === "radio") {
+            el.checked = (el.value === value);
+          } else {
+            el.value = value;
+          }
+        }
+      }
+
+      function autofillFromQueryParam() {
+        try {
+          const params = new URLSearchParams(window.location.search);
+          const encoded = params.get("mci");
+          if (!encoded) {
+            console.log("MCI Home: no ?mci= param found – leaving form blank.");
+            return;
+          }
+
+          const json = atob(decodeURIComponent(encoded));
+          const data = JSON.parse(json);
+          console.log("MCI Home: decoded data:", data);
+
+          // --- BASIC / PROPERTY ---
+          fill("home_namedInsured", data.namedInsured);
+          fill("home_insuredEmail", data.insuredEmail);
+          fill("home_propertyAddress", data.propertyAddress);
+          fill("home_city", data.city);
+          fill("home_state", data.state);
+          fill("home_zip", data.zip);
+          fill("home_county", data.county);
+
+          // --- QUOTE BASICS ---
+          fill("home_currentCarrier", data.currentCarrier);
+          fill("home_policyEffDate", data.policyEffDate);
+          fill("home_cancelDate", data.cancelDate);
+          fill("home_hoForm", data.hoForm);
+
+          // --- LIMITS / DWELLING ---
+          fill("home_dwellingValue", data.dwellingValue);
+          fill("home_liabLimit", data.liabilityLimit);
+          fill("home_medPayLimit", data.medPayLimit);
+          fill("home_protectionClass", data.protectionClass || data.fireDistrict);
+          fill("home_yearBuilt", data.yearBuilt);
+          fill("home_sqFootage", data.squareFootage);
+          fill("home_constructionFrame", data.constructionFrame);
+          fill("home_constructionBV", data.constructionBV);
+          fill("home_deductible", data.deductible);
+          fill("home_dwellingUpdates", data.dwellingUpdates);
+
+          // --- CREDITS / SAFETY ---
+          fill("home_fireExtinguishers", data.fireExtinguishers);
+          fill("home_deadBolts", data.deadBolts);
+          fill("home_smokeDetectors", data.smokeDetectors);
+          fill("home_centralHeat", data.centralHeat);
+          fill("home_centralAlarm", data.centralAlarm);
+          fill("home_localAlarm", data.localAlarm);
+
+          // --- INSUREDS ---
+          fill("home_insuredBirthdate", data.insuredBirthdate);
+          fill("home_insuredSSN", data.insuredSSN);
+          fill("home_secondNamedBirthdate", data.secondNamedBirthdate || data.spouseBirthdate);
+          fill("home_secondNamedSSN", data.secondNamedSSN || data.spouseSSN);
+          fill("home_occupation", data.occupation);
+
+          // --- POOL / TRAMP / DOGS ---
+          fill("home_swimmingPool", data.swimmingPool);
+          if (data.poolFenced) {
+            const val = String(data.poolFenced).toLowerCase();
+            if (val === "yes") {
+              const yesRadio = document.getElementById("home_poolFencedYes");
+              if (yesRadio) yesRadio.checked = true;
+            } else if (val === "no") {
+              const noRadio = document.getElementById("home_poolFencedNo");
+              if (noRadio) noRadio.checked = true;
+            }
+          }
+          fill("home_trampoline", data.trampoline);
+          fill("home_dogs", data.dogs);
+          fill("home_dogBreeds", data.dogBreeds);
+          fill("home_dogBiteHistory", data.dogBiteHistory);
+
+          // --- LOSSES / ENDORSEMENTS ---
+          fill("home_anyLosses3yrs", data.anyLosses3yrs);
+          fill("home_lossDescription", data.lossDescription);
+          fill("home_anySpecialEndorsements", data.anySpecialEndorsements);
+          fill("home_specialEndorsementDetails", data.specialEndorsementDetails);
+
+          // --- AUTO / MORTGAGE ---
+          fill("home_autoWithAgency", data.autoWithAgency);
+          fill("home_autoCompany", data.autoCompany);
+          fill("home_hasMortgage", data.hasMortgage);
+          fill("home_paymentMethod", data.paymentMethod);
+
+          // --- NOTES ---
+          fill("home_notes", data.notes);
+        } catch (e) {
+          console.error("MCI Home Quote autofill error:", e);
+        }
+      }
+
+      // Run immediately (script is at end of body, so DOM is ready)
+      autofillFromQueryParam();
+      initConditional();
+    })();
+  </script>
+
+</body>
+</html>
