@@ -1,10 +1,7 @@
 // ==UserScript==
-// MCI internal tooling
-// Copyright (c) 2025 Middle Creek Insurance. All rights reserved.
-// Not authorized for redistribution or resale.
 // @name         MCI Master Menu
 // @namespace    mci-tools
-// @version      4.6
+// @version      4.7
 // @description  Slide-out toolbox (QQ / Erie / NatGen) with Shadow DOM. Hover far-left to open; Alt+M toggles; Alt+Shift+M removes. Copy/Paste mapper, VIN lookup, and in-menu QQC Carrier Extractor -> QQ autofill pipeline.
 // @match        https://app.qqcatalyst.com/*
 // @match        https://*.qqcatalyst.com/*
@@ -594,7 +591,57 @@
   #${MENU_ID}:hover{ left:0 !important; }
 
   .mci-section{ margin:10px 10px 6px; border:1px solid rgba(255,255,255,.06); border-radius:10px; background:#20232b; overflow:hidden; }
-  .mci-head{ background:#0f172a; color:#fff; padding:9px 12px; border-bottom:1px solid rgba(255,255,255,.08);
+   .mci-head{
+    background:#0f172a;
+    color:#fff;
+    padding:9px 12px;
+    border-bottom:1px solid rgba(255,255,255,.08);
+    display:flex;
+    flex-direction:column;      /* stack rows */
+    align-items:flex-start;
+    gap:2px;
+    font-weight:700;
+    letter-spacing:.2px;
+  }
+
+  .mci-head-top{
+    display:flex;
+    align-items:center;
+    gap:6px;
+  }
+
+  .mci-head-meta{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    font-weight:600;
+    font-size:12px;
+  }
+
+  .mci-close-btn{
+    background:none;
+    border:none;
+    color:#f97373;
+    cursor:pointer;
+    font-size:14px;
+    padding:0;
+    margin:0;
+  }
+
+  .mci-close-btn:hover{
+    color:#fecaca;
+  }
+
+  .mci-title{
+    font-size:14px;
+  }
+
+  .mci-host{
+    opacity:.75;
+    font-weight:600;
+    font-size:12px;
+  }
+
             display:flex; align-items:center; justify-content:space-between; font-weight:700; letter-spacing:.2px; }
   .mci-host{ opacity:.75; font-weight:600; font-size:12px }
   .mci-body{ padding:8px 10px }
@@ -617,30 +664,6 @@
   .badge{ display:inline-block; background:#334155; color:#e6eef8; border:1px solid rgba(255,255,255,.08);
           padding:3px 6px; border-radius:999px; font-size:11px; margin-left:6px }
 
-  /* Accordion VIN */
-  details.mci-acc{ border:1px solid rgba(255,255,255,.12); border-radius:8px; background:#111827; }
-  details.mci-acc[open]{ background:#0f1626; }
-  summary.mci-sum{
-    list-style:none; cursor:pointer; padding: 2px 5px; font-weight:700; display:flex; align-items:center; justify-content:space-between;
-  }
-  summary.mci-sum::-webkit-details-marker{ display:none; }
-  .mci-caret{ transition:transform .15s ease; }
-  details[open] .mci-caret{ transform:rotate(90deg); }
-
-  .vdin-body{ padding:10px 12px; padding-top:0; }
-  .mci-input-row{ display:flex; gap:8px; align-items:center; }
-  .mci-input{
-    flex:1; min-width:0; height:36px; padding:7px 10px; border-radius:6px;
-    border:1px solid #2c3442; background:#0b1220; color:#e6eef8; outline:none;
-  }
-  .mci-inline-btn{
-    flex:0 0 auto; height:36px; padding:0 12px; border-radius:8px;
-    border:1px solid rgba(255,255,255,.12); background:#2a2f39; color:#fff; cursor:pointer;
-  }
-  .mci-inline-btn:hover{ background:#394152 }
-  .mci-btn-row{ display:flex; gap:8px; align-items:stretch; margin-top:8px; }
-  .mci-btn-row .mci-btn{ margin:0; }
-  .mci-btn-row .mci-inline-btn{ height:auto; }
   .mci-btn-pair{ display:flex; gap:8px; }
   .mci-btn-pair .mci-btn{ flex:1; margin:0; }
 
@@ -688,8 +711,16 @@
 <div id="${TRIGGER_ID}" title="Hover to open"></div>
 <div id="${MENU_ID}">
   <div class="mci-head">
-    <div>MCI Toolbox <span class="badge">${IS_QQ ? "QQ" : IS_ERIE ? "Erie" : IS_NG ? "NatGen" : location.hostname}</span></div>
-    <div class="mci-host">${location.hostname}</div>
+    <div class="mci-head-top">
+      <button id="mci_remove_header" class="mci-close-btn" title="Remove Menu">❌</button>
+      <span class="mci-title">MCI Toolbox</span>
+    </div>
+    <div class="mci-head-meta">
+      <span class="badge">
+        ${IS_QQ ? "QQ" : IS_ERIE ? "Erie" : IS_NG ? "NatGen" : location.hostname}
+      </span>
+      <span class="mci-host">${location.hostname}</span>
+    </div>
   </div>
 
   ${IS_QQ ? `
@@ -715,22 +746,15 @@
     </div>
   </div></div>
 
+    <div class="divider" data-label="Quote Export"></div>
   <div class="mci-section"><div class="mci-body">
-    <details class="mci-acc" id="mci_vin_acc">
-      <summary class="mci-sum">
-        <span>VIN Lookup</span>
-        <span><span class="badge">NHTSA</span> <span class="mci-caret">></span></span>
-      </summary>
-      <div class="vdin-body">
-        <div class="mci-input-row" style="margin-bottom:8px">
-          <input id="mci_vin" class="mci-input" type="text" maxlength="17" placeholder="Enter VIN (partial OK)">
-        </div>
-        <div class="mci-btn-row">
-          <button class="mci-btn" id="mci_vin_search" style="flex:1">Search</button>
-          <button class="mci-inline-btn" id="mci_vin_clear">Clear</button>
-        </div>
+    <div class="mci-downloader">
+      <button class="mci-btn blue" id="mci_export_toggle">🚗 Export Quote ▸</button>
+      <div class="mci-downloader-panel" id="mci_export_panel">
+        <button class="mci-btn brand" id="mci_export_auto">Auto Quote</button>
+        <button class="mci-btn brand" id="mci_export_home">Home Quote</button>
       </div>
-    </details>
+    </div>
   </div></div>
 
   <div class="divider" data-label="File Downloader"></div>
@@ -756,7 +780,6 @@
 <div class="mci-section"><div class="mci-body">
   <button class="mci-btn brand" id="mci_cashCenter">💵 Cash Payment Center</button>
   <button class="mci-btn brand" id="mci_fax">📠 Fax</button>
-  <button class="mci-btn gray" id="mci_remove">❌ Remove Menu (Alt+Shift+M)</button>
 </div></div>
 
 <div class="mci-footer-note shortcuts v2">
@@ -806,6 +829,10 @@
 
         const $s = sel => root.querySelector(sel);
 
+                $s("#mci_remove_header")?.addEventListener("click", () => {
+            document.getElementById(HOST_ID)?.remove();
+        });
+
         // File Downloader: expand/collapse
         $s('#mci_fd_toggle')?.addEventListener('click', () => {
             const panel = $s('#mci_fd_panel');
@@ -815,6 +842,17 @@
             if (btn) btn.textContent = panel.classList.contains('open')
                 ? 'File Downloader ▾'
                 : 'File Downloader ▸';
+        });
+
+                // Export Quote: expand/collapse
+        $s('#mci_export_toggle')?.addEventListener('click', () => {
+            const panel = $s('#mci_export_panel');
+            if (!panel) return;
+            panel.classList.toggle('open');
+            const btn = $s('#mci_export_toggle');
+            if (btn) btn.textContent = panel.classList.contains('open')
+                ? '🚗 Export Quote ▾'
+                : '🚗 Export Quote ▸';
         });
 
         /************************ menu button handler for Cash Payment Button *********************************/
@@ -840,42 +878,6 @@
         $s("#mci_copy")?.addEventListener("click", () => doCopy(toast));
         $s("#mci_paste")?.addEventListener("click", () => doPaste(toast));
 
-        $s("#mci_remove")?.addEventListener("click", () => document.getElementById(HOST_ID)?.remove());
-
-        // VIN
-        $s("#mci_vin_clear")?.addEventListener("click", () => { const i = $s("#mci_vin"); if (i) { i.value = ""; i.focus(); } });
-        $s("#mci_vin_search")?.addEventListener("click", () => {
-            const v = ($s("#mci_vin")?.value || "").trim(); if (!v) return toast("Enter a VIN first.");
-            const f = document.createElement("form"); f.action = "https://vpic.nhtsa.dot.gov/decoder/Decoder"; f.method = "post"; f.target = "_blank";
-            const inp = document.createElement("input"); inp.type = "hidden"; inp.name = "VIN"; inp.value = v.toUpperCase(); f.appendChild(inp);
-            document.body.appendChild(f); f.submit(); setTimeout(() => f.remove(), 500);
-        });
-        $s("#mci_vin")?.addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); $s("#mci_vin_search")?.click(); } });
-
-        if (IS_QQ) {
-            startPdfPopupObserver();
-            $s("#mci_pdf_open")?.addEventListener("click", () => smartOpenPdfs(toast));
-
-            $s("#mci_fix_names")?.addEventListener("click", (evt) => {
-                const target = evt.currentTarget;
-                const { active, count } = toggleFileNameFix();
-                target.textContent = active ? "Hide Full File Names" : "Show Full File Names";
-                toast(count ? (active ? "Showing full file names." : "Restored truncated file names.") : "No file names found on this page.");
-            });
-
-            const colorInput = $s("#mci_row_color");
-            colorInput?.addEventListener("input", (ev) => {
-                const val = ev.target.value || DEFAULT_ROW_COLOR;
-                localStorage.setItem(HIGHLIGHT_COLOR_KEY, val);
-                updateHighlightedRows(val);
-            });
-
-            $s("#mci_row_highlight")?.addEventListener("click", () => {
-                const rows = attachRowHighlighter();
-                toast(rows ? "Row highlighting enabled (click rows to toggle)." : "No rows found to highlight.");
-            });
-        }
-
 
         // Wire the File Downloader action buttons
         $s('#mci_fd_erie')?.addEventListener('click', () => {
@@ -900,6 +902,50 @@
             runFlood();
         });
 
+        $s('#mci_fd_ncjua')?.addEventListener('click', () => {
+            $s('#mci_fd_panel')?.classList.remove('open');
+            $s('#mci_fd_toggle').textContent = 'File Downloader ▸';
+            runNCJUA();
+        });
+
+        $s('#mci_fd_flood')?.addEventListener('click', () => {
+            $s('#mci_fd_panel')?.classList.remove('open');
+            $s('#mci_fd_toggle').textContent = 'File Downloader ▸';
+            runFlood();
+        });
+
+        // === Export Quote (Auto / Home) ===
+        $s('#mci_export_auto')?.addEventListener('click', () => {
+            const w = PAGE_WINDOW || window;
+            try {
+                if (w.mciRunErieAutoExport) {
+                    w.mciRunErieAutoExport();
+                } else if (w.top && w.top.mciRunErieAutoExport) {
+                    w.top.mciRunErieAutoExport();
+                } else {
+                    toast('Auto export script not found on this page.');
+                }
+            } catch (e) {
+                console.warn('[MCI Toolbox] Error calling Auto exporter', e);
+                toast('Error starting Auto export – see console.');
+            }
+        });
+
+        $s('#mci_export_home')?.addEventListener('click', () => {
+            const w = PAGE_WINDOW || window;
+            try {
+                if (w.mciRunErieHomeExport) {
+                    w.mciRunErieHomeExport();
+                } else if (w.top && w.top.mciRunErieHomeExport) {
+                    w.top.mciRunErieHomeExport();
+                } else {
+                    toast('Home export script not found on this page.');
+                }
+            } catch (e) {
+                console.warn('[MCI Toolbox] Error calling Home exporter', e);
+                toast('Error starting Home export – see console.');
+            }
+        });
 
         // Edge hover watcher (host page coordinates)
         window.addEventListener("mousemove", (e) => {
@@ -1756,7 +1802,4 @@ function runFaxEnhancer() {
         catch (e) { console.warn('Fax enhancer error:', e); }
     }
 
-
 })();
-
-
