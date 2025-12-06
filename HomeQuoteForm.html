@@ -760,6 +760,43 @@
 
     })();
   </script>
+<script>
+(function () {
+  const baseTitle = 'Homeowners Quote Sheet - Middle Creek Insurance';
+
+  function extractLastName(fullName) {
+    if (!fullName) return '';
+    const parts = fullName.trim().split(/\s+/);
+    if (!parts.length) return '';
+    // Use last word as last name, strip odd punctuation
+    return parts[parts.length - 1].replace(/[^A-Za-z'\-]/g, '');
+  }
+
+  function updateHomeTitleFromNamedInsured() {
+    const input = document.getElementById('home_namedInsured');
+    if (!input) {
+      document.title = baseTitle;
+      return;
+    }
+    const lastName = extractLastName(input.value || '');
+    document.title = lastName ? (lastName + ' - ' + baseTitle) : baseTitle;
+  }
+
+  window.addEventListener('load', function () {
+    const input = document.getElementById('home_namedInsured');
+    if (!input) {
+      document.title = baseTitle;
+      return;
+    }
+
+    // Set initial title (in case you prefill from ?mci=)
+    updateHomeTitleFromNamedInsured();
+
+    // Keep title in sync as they type/edit
+    input.addEventListener('input', updateHomeTitleFromNamedInsured);
+  });
+})();
+</script>
 
 </body>
 </html>
