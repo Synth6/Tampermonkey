@@ -41,6 +41,15 @@
             padding: 32px 16px 48px;
         }
 
+        a {
+            color: #38bdf8;
+            text-decoration: none;
+        }
+
+        a:hover {
+            color: #7dd3fc;
+        }
+        
         .shell {
             width: 100%;
             max-width: 1080px;
@@ -379,7 +388,7 @@
                         <span>How to use</span>
                     </div>
                     <ul>
-                        <li>Install <a href="https://www.tampermonkey.net/" <b>Tampermonkey</b></a> (Chrome).</li>
+                        <li>Install <a href="https://www.tampermonkey.net/" <b>Tampermonkey</b></a>.</li>
                         <li>Click <b>Install / Update</b> for each script you need.</li>
                         <li>Accept the Tampermonkey install prompt.</li>
                     </ul>
@@ -535,6 +544,67 @@
                         href="https://github.com/Synth6/Tampermonkey/blob/main/VIN%20F10%20lookup.user.js"
                         target="_blank" rel="noopener">
                         <span class="icon">👁️</span><span>View source</span>
+                    </a>
+                </div>
+            </section>
+
+                        <!-- Erie → Auto → MCI Auto Quote Form -->
+            <section class="card">
+                <div class="card-header">
+                    <div class="card-icon">🚘</div>
+                    <div>
+                        <div class="card-title">Erie → Auto Quote Form</div>
+                        <div class="card-tagline">Send Erie Auto quote into MCI Auto HTML sheet</div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    Reads the active Erie Auto quote and pushes the customer, drivers, vehicles,
+                    and coverage data into your <b>AutoQuoteForm.html</b> worksheet so you can tidy,
+                    print, or save it for the client file.
+                </div>
+                <div class="card-meta">
+                    <span class="badge">Scope: Erie Personal Auto</span>
+                    <span>Outputs to: AutoQuoteForm.html</span>
+                </div>
+                <div class="btn-row">
+                    <a class="btn btn-primary"
+                        href="https://raw.githubusercontent.com/Synth6/Tampermonkey/main/Auto%20-%20Erie%20to%20Jones%20-%20Quote.user.js">
+                        <span class="icon">⬇️</span><span>Install / Update</span>
+                    </a>
+                    <a class="btn btn-ghost"
+                        href="https://github.com/Synth6/Tampermonkey/blob/main/Auto%20-%20Erie%20to%20Jones%20-%20Quote.user.js"
+                        target="_blank" rel="noopener">
+                        <span class="icon">👁️</span><span>View script</span>
+                    </a>
+                </div>
+            </section>
+
+            <!-- Erie → Home → MCI Home Quote Form -->
+            <section class="card">
+                <div class="card-header">
+                    <div class="card-icon">🏡</div>
+                    <div>
+                        <div class="card-title">Erie → Home Quote Form</div>
+                        <div class="card-tagline">Send Erie Home quote into MCI Home HTML sheet</div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    Exports the Erie Home quote details into your <b>HomeQuoteForm.html</b> worksheet
+                    so you can review, print, and drop a copy into the Middle Creek client folder.
+                </div>
+                <div class="card-meta">
+                    <span class="badge">Scope: Erie Homeowners</span>
+                    <span>Outputs to: HomeQuoteForm.html</span>
+                </div>
+                <div class="btn-row">
+                    <a class="btn btn-primary"
+                        href="https://raw.githubusercontent.com/Synth6/Tampermonkey/main/Home%20-%20Erie%20to%20Jones%20-%20Quote.user.js">
+                        <span class="icon">⬇️</span><span>Install / Update</span>
+                    </a>
+                    <a class="btn btn-ghost"
+                        href="https://github.com/Synth6/Tampermonkey/blob/main/Home%20-%20Erie%20to%20Jones%20-%20Quote.user.js"
+                        target="_blank" rel="noopener">
+                        <span class="icon">👁️</span><span>View script</span>
                     </a>
                 </div>
             </section>
