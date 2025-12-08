@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MCI Master Menu
 // @namespace    mci-tools
-// @version      4.7
+// @version      4.8
 // @description  Slide-out toolbox (QQ / Erie / NatGen) with Shadow DOM. Hover far-left to open; Alt+M toggles; Alt+Shift+M removes. Copy/Paste mapper, VIN lookup, and in-menu QQC Carrier Extractor -> QQ autofill pipeline.
 // @match        https://app.qqcatalyst.com/*
 // @match        https://*.qqcatalyst.com/*
@@ -829,6 +829,48 @@
 
         const $s = sel => root.querySelector(sel);
 
+        // QQ-only button handlers
+        if (IS_QQ) {
+            // Smart PDF opener
+            $s('#mci_pdf_open')?.addEventListener('click', () => {
+                // make sure we keep enhancing the preview popup
+                startPdfPopupObserver();
+                smartOpenPdfs(toast);
+            });
+        
+            // Fix / un-fix file names in the attachment list
+            $s('#mci_fix_names')?.addEventListener('click', () => {
+                const res = toggleFileNameFix();
+                if (!res.count) {
+                    toast('No file name cells found on this page.');
+                } else if (res.active) {
+                    toast(`Showing full file names on ${res.count} cell(s).`);
+                } else {
+                    toast('File names returned to normal.');
+                }
+            });
+        
+            // Row highlighter
+            $s('#mci_row_highlight')?.addEventListener('click', () => {
+                const count = attachRowHighlighter();
+                toast(
+                    count
+                        ? `Row highlighter active on ${count} row(s). Click a row to toggle.`
+                        : 'No rows found to highlight on this page.'
+                );
+            });
+        
+            // Color picker for highlighted rows
+            const colorInput = $s('#mci_row_color');
+            if (colorInput) {
+                colorInput.addEventListener('input', (e) => {
+                    const color = e.target.value || DEFAULT_ROW_COLOR;
+                    localStorage.setItem(HIGHLIGHT_COLOR_KEY, color);
+                    updateHighlightedRows(color);
+                    toast(`Highlight color set to ${color}.`);
+                });
+            }
+        }
                 $s("#mci_remove_header")?.addEventListener("click", () => {
             document.getElementById(HOST_ID)?.remove();
         });
@@ -1803,3 +1845,4 @@ function runFaxEnhancer() {
     }
 
 })();
+
