@@ -4,7 +4,7 @@
 // Not authorized for redistribution or resale.
 // @name         MCI Smart Lookup (F8 Universal + Vexcel)
 // @namespace    mci-tools
-// @version      1.10
+// @version      1.11
 // @description  F8 on hover/selection: LinkedIn, Wake+Maps+Vexcel, Erie (WWW), NatGen. Tab title shows detected type.
 // @match        *://*/*
 // @match        file://*/*
@@ -309,7 +309,8 @@ if (location.hostname === "www.agentexchange.com" || location.hostname === "agen
       const r = el.getBoundingClientRect();
       return !!(el.offsetParent || r.width || r.height);
     };
-    function observeUntil(predicate, timeoutMs=5000, root=document){
+
+    function observeUntil(predicate, timeoutMs = 5000, root = document) {
       return new Promise(resolve => {
         const first = predicate();
         if (first) return resolve(first);
@@ -317,48 +318,72 @@ if (location.hostname === "www.agentexchange.com" || location.hostname === "agen
           const el = predicate();
           if (el) { obs.disconnect(); resolve(el); }
         });
-        obs.observe(root === document ? document.documentElement : root, {childList:true,subtree:true,attributes:true,characterData:true});
+        obs.observe(
+          root === document ? document.documentElement : root,
+          { childList: true, subtree: true, attributes: true, characterData: true }
+        );
         setTimeout(() => { obs.disconnect(); resolve(predicate()); }, timeoutMs);
       });
     }
-    function finish(){
+
+    function finish() {
       try { history.replaceState(null, "", location.pathname + location.search); } catch(_) {}
       try { sessionStorage.removeItem(K_ERIE_POL); sessionStorage.removeItem(K_ERIE_AWAIT); } catch(_) {}
     }
 
-    function flipDropdown(){
+    function flipDropdown() {
       const ddl = document.querySelector("#dropdown-select");
       if (ddl && ddl.value !== "0") {
         ddl.value = "0";
-        ddl.dispatchEvent(new Event("input",{bubbles:true}));
-        ddl.dispatchEvent(new Event("change",{bubbles:true}));
+        ddl.dispatchEvent(new Event("input", { bubbles: true }));
+        ddl.dispatchEvent(new Event("change", { bubbles: true }));
       }
       // Angular poke
-      const s=document.createElement("script");
-      s.textContent="(()=>{try{var el=document.querySelector('#dropdown-select');if(!el)return; if(window.angular&&angular.element){var sc=angular.element(el).scope()||(angular.element(el).isolateScope&&angular.element(el).isolateScope()); if(sc){sc.searchType='0'; if(typeof sc.searchTypeChanged==='function') sc.searchTypeChanged(); if(sc.$applyAsync) sc.$applyAsync(); else if(sc.$apply) sc.$apply();}} el.value='0'; el.dispatchEvent(new Event('change',{bubbles:true}));}catch(e){}})()";
-      document.documentElement.appendChild(s); s.remove();
+      const s = document.createElement("script");
+      s.textContent =
+        "(()=>{try{var el=document.querySelector('#dropdown-select');if(!el)return; " +
+        "if(window.angular&&angular.element){var sc=angular.element(el).scope()||(angular.element(el).isolateScope&&angular.element(el).isolateScope()); " +
+        "if(sc){sc.searchType='0'; if(typeof sc.searchTypeChanged==='function') sc.searchTypeChanged(); " +
+        "if(sc.$applyAsync) sc.$applyAsync(); else if(sc.$apply) sc.$apply();}} " +
+        "el.value='0'; el.dispatchEvent(new Event('change',{bubbles:true}));}catch(e){}})()";
+      document.documentElement.appendChild(s);
+      s.remove();
     }
-    function findPolicyInput(){
+
+    function findPolicyInput() {
       let el = document.querySelector("#policyNumber, #policyNumber-txt, input[name='policyNumber']");
       if (el && visible(el)) return el;
-      const all = Array.from(document.querySelectorAll("#searchContainer input, #searchContainer input[type='text'], #searchContainer input[type='search']")).filter(i => visible(i));
+
+      const all = Array.from(
+        document.querySelectorAll("#searchContainer input, #searchContainer input[type='text'], #searchContainer input[type='search']")
+      ).filter(i => visible(i));
+
       const candidates = all.filter(i => {
         if (i.closest && i.closest("#nameAndAdvSrch")) return false;
-        const sig = ((i.placeholder||"")+" "+(i.name||"")+" "+(i.id||"")+" "+(i.getAttribute("aria-label")||"")).toLowerCase();
+        const sig = (
+          (i.placeholder || "") + " " +
+          (i.name || "") + " " +
+          (i.id || "") + " " +
+          (i.getAttribute("aria-label") || "")
+        ).toLowerCase();
         return /policy/.test(sig) || /number/.test(sig);
       });
+
       if (candidates.length) return candidates[0];
+
       const nameSection = document.querySelector("#nameAndAdvSrch");
       const nameVisible = nameSection && visible(nameSection);
       if (!nameVisible && all.length === 1) return all[0];
+
       return null;
     }
 
-    (async function main(){
+    (async function main() {
       await observeUntil(() => document.querySelector("#dropdown-select"), 5000);
+
       let tries = 0;
       let input = null;
-      while (tries < 16 && !input){
+      while (tries < 16 && !input) {
         tries++;
         flipDropdown();
         input = findPolicyInput();
@@ -369,24 +394,59 @@ if (location.hostname === "www.agentexchange.com" || location.hostname === "agen
       const fillVal = sessionStorage.getItem(K_ERIE_POL) || "";
       input.focus();
       input.value = fillVal;
-      input.dispatchEvent(new Event("input",{bubbles:true}));
-      input.dispatchEvent(new Event("change",{bubbles:true}));
+      input.dispatchEvent(new Event("input", { bubbles: true }));
+      input.dispatchEvent(new Event("change", { bubbles: true }));
 
-      const btn = document.querySelector("#btnSearch") ||
-                  Array.from(document.querySelectorAll("button, input[type='submit'], input[type='button']"))
-                    .find(b => /search/i.test(norm(b.innerText || b.textContent || b.value || "")));
+      const btn =
+        document.querySelector("#btnSearch") ||
+        Array.from(document.querySelectorAll("button, input[type='submit'], input[type='button']"))
+          .find(b => /search/i.test(norm(b.innerText || b.textContent || b.value || "")));
+
       if (btn) btn.click();
 
       const row = await observeUntil(() => {
         const r = document.querySelector("#custSrchResults .custResListArr");
         return r && visible(r) ? r : null;
       }, 5000);
+
       if (row) {
         const link = row.querySelector("#resCustName, .custName, [ng-click*='gotoCustomerDetail'], a");
         if (link) link.click();
       }
+
       finish();
     })();
+  })();
+
+  // NEW: on Customer Detail page, auto-click "Documents"
+  (function erieAutoDocuments() {
+    // Only run on /Customer/Search/Detail/...
+    if (!/^\/Customer\/Search\/Detail\//i.test(location.pathname)) return;
+
+    function visible(el) {
+      if (!el) return false;
+      const r = el.getBoundingClientRect();
+      return !!(el.offsetParent || r.width || r.height);
+    }
+
+    // Poll for up to 10 seconds for the Documents link and click it once
+    const start = performance.now();
+    const iv = setInterval(() => {
+      if (performance.now() - start > 10000) {
+        clearInterval(iv);
+        return;
+      }
+
+      const link = document.querySelector(
+        '.policy-link-label a[href*="DocumentListWeb/PolicyDocuments/Documents/"], ' +
+        'a[href*="/DocumentListWeb/PolicyDocuments/Documents/"]'
+      );
+
+      if (link && visible(link)) {
+        link.click();
+        clearInterval(iv);
+      }
+    }, 200);
   })();
 }
 
@@ -573,6 +633,4 @@ if (location.hostname === "app.vexcelgroup.com") {
   })();
 }
 
-
 })();
-
