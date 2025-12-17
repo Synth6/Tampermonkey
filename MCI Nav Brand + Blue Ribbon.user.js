@@ -1,10 +1,7 @@
 // ==UserScript==
-// MCI internal tooling
-// Copyright (c) 2025 Middle Creek Insurance. All rights reserved.
-// Not authorized for redistribution or resale.
 // @name         MCI Nav Brand + Blue Ribbon (QQCatalyst)
 // @namespace    mci-tools
-// @version      2.2
+// @version      2.3
 // @description  Adds a stacked “Middle Creek / Insurance” badge in top navigation; applies blue gradient to the fixed ribbon only.
 // @match        https://app.qqcatalyst.com/*
 // @match        https://*.qqcatalyst.com/*
@@ -22,8 +19,8 @@
   const DRIVE_URL    = "https://sites.google.com/middlecreekins.com/easy-links/home";
 
   // Nav badge size/spacing
-  const BADGE_HEIGHT = 41;   // px
-  const BADGE_PADX   = 10;   // px
+  const BADGE_HEIGHT = 29;   // px
+  const BADGE_PADX   = 3;   // px
   const MARGIN_LEFT  = 10;   // px after QQ logo
 
   // Nav badge text sizes
@@ -67,6 +64,7 @@
       text-decoration: none !important;
       line-height: 1.1;
       vertical-align: middle;
+      top: 9px;
     }
     #navigation #menu .mci-brand:hover { background: #0a0a0a; }
 
@@ -176,6 +174,4 @@
       e.preventDefault();
     }
   });
-
 })();
-
