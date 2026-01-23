@@ -4,8 +4,8 @@
 // Not authorized for redistribution or resale.
 // @name         QQC Carrier Extractor
 // @namespace    qqc-tools
-// @version      1.4
-// @description  Extract from NatGen/Erie and autofill QQ Catalyst. Alt+Q: Extractor. Alt+P: Autofill. Shared Save/Load.
+// @version      1.5
+// @description  Extract from NatGen/Erie and autofill QQ Catalyst. Alt+Q: Extractor. Alt+P: Autofill. Shared Save/Load Added Progressive.
 // @match        https://natgenagency.com/*
 // @match        https://*.natgenagency.com/*
 // @match        https://agentexchange.com/*
@@ -14,6 +14,7 @@
 // @match        https://*.qqcatalyst.com/*
 // @match        https://natgen.beyondfloods.com/*
 // @match        https://nationalgeneral.torrentflood.com/*
+// @match        https://quoting.foragentsonly.com/*
 // @all-frames   true
 // @run-at       document-idle
 // @grant        GM_setValue
@@ -721,6 +722,62 @@
       address: { line1: addr1, line2: '', city, state, zip }
     };
   }
+// ---------- Extractor (Progressive FAO) ----------
+function isProgressiveFAO() {
+  return /quoting\.foragentsonly\.com$/i.test(location.hostname);
+}
+function extractProgressiveFAO() {
+  const gv = (id) => (S('#' + id)?.value || '').trim();
+
+  // Principal Named Insured
+  const firstName = gv('NamedInsured_Embedded_Questions_List_FirstName');
+  const middleName = gv('NamedInsured_Embedded_Questions_List_MiddleInitial');
+  const lastName = gv('NamedInsured_Embedded_Questions_List_LastName');
+  const suffix = (S('#NamedInsured_Embedded_Questions_List_Suffix')?.value || '').trim();
+  const dob = gv('NamedInsured_Embedded_Questions_List_DateOfBirth');
+
+  // Contact Information
+  const primaryEmail = gv('NamedInsured_Embedded_Questions_List_PrimaryEmailAddress');
+
+  // Phone
+  const phoneTypeCode = (S('#NamedInsured_PhoneNumbers_List_0_Embedded_Questions_List_PhoneType')?.value || '').trim(); // M/H/W/O
+  const phoneRaw = gv('NamedInsured_PhoneNumbers_List_0_Embedded_Questions_List_PhoneNumber');
+  const primaryPhone = (phoneRaw || '').replace(/[^\d]/g, '');
+  const phoneDisplay = formatPhone(primaryPhone);
+
+  // Mailing Address
+  const addr1 = gv('NamedInsured_Embedded_Questions_List_MailingAddress');
+  const addr2 = gv('NamedInsured_Embedded_Questions_List_ApartmentUnit');
+  const city = gv('NamedInsured_Embedded_Questions_List_City');
+  const state = (S('#NamedInsured_Embedded_Questions_List_State')?.value || '').trim();
+  const zip = gv('NamedInsured_Embedded_Questions_List_ZipCode');
+
+  // map phone type if you ever need it later
+  const phoneKind =
+    phoneTypeCode === 'M' ? 'Cell' :
+    phoneTypeCode === 'H' ? 'Home' :
+    phoneTypeCode === 'W' ? 'Work' :
+    phoneTypeCode === 'O' ? 'Other' : '';
+
+  return {
+    carrier: 'Progressive-FAO',
+    sourceUrl: location.href,
+    firstName,
+    middleName,
+    lastName,
+    suffix,
+    dob: toMMDDYYYY(dob),
+    primaryPhone,
+    phoneType: phoneDisplay,
+    phoneKind,
+    primaryEmail: (primaryEmail || '').toLowerCase(),
+    contactType: 'Customers',
+    customerType: 'Personal',
+    address: { line1: addr1, line2: addr2, city, state, zip }
+  };
+}
+
+
   function isEriePLW() {
     return /agentexchange\.com$/i.test(location.hostname) && /\/PersonalLinesWeb\/?/i.test(location.pathname);
   }
@@ -1015,6 +1072,7 @@
 
   async function autoDetect() {
     if (hasErieProfileEmailAnchor()) return await extractErieProfile();
+    if (isProgressiveFAO()) return extractProgressiveFAO();
     if (isNatGenNamedInsured()) return extractNatGenNamedInsured();
     if (isNatGenSummary()) return extractNatGenSummary();
     if (isEriePLW()) return await extractEriePLW();
