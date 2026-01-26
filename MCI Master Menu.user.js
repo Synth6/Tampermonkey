@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         MCI Master Menu
 // @namespace    mci-tools
-// @version      5.0
-// @description  Slide-out toolbox (QQ / Erie / NatGen) with Shadow DOM. Hover far-left to open; Alt+M toggles; Alt+Shift+M removes. Copy/Paste mapper, VIN lookup, and in-menu QQC Carrier Extractor -> QQ autofill pipeline.
+// @version      5.3
+// @description  MCI slide-out toolbox for carrier sites (QQ / Erie / NatGen / Progressive). Shadow DOM UI with smart clipboard buttons; hover far-left (or Alt+M) to open.
 // @match        https://app.qqcatalyst.com/*
 // @match        https://*.qqcatalyst.com/*
 // @match        https://portal.agentexchange.com/*
@@ -15,6 +15,7 @@
 // @match        https://gotfreefax.com/*
 // @match        https://natgen.beyondfloods.com/*
 // @match        https://nationalgeneral.torrentflood.com/*
+// @match        https://quoting.foragentsonly.com/*
 // @run-at       document-idle
 // @grant        GM_setValue
 // @grant        GM_getValue
@@ -29,11 +30,12 @@
     const HOST = location.hostname.toLowerCase();
     const PAGE_WINDOW = typeof unsafeWindow !== "undefined" ? unsafeWindow : window;
     const IS_QQ = /qqcatalyst/.test(HOST);
+    const IS_PROG = /quoting\.foragentsonly\.com/i.test(HOST) || /foragentsonly\.com/i.test(HOST);
     const IS_ERIE = /agentexchange\.com|portal\.agentexchange\.com|customerdatamanagement\.agentexchange\.com/.test(HOST);
     const IS_NG = /natgenagency\.com/.test(HOST);
     const IN_IFRAME = window.top !== window.self;
     // Only keep menu instances inside QQ iframes; Erie/NatGen modules inherit the parent menu instead.
-    if (IN_IFRAME && !IS_QQ) return;
+    if (IN_IFRAME && !(IS_QQ || IS_PROG)) return;
 
     /***************
      * ENV / CONST *
@@ -393,8 +395,39 @@
                     "#ctl00_MainContent_InsuredNamed1_txtInsZip2"
                 ]
             }
-        }
-    ];
+        },
+
+        // PROGRESSIVE: Quote Named Insured
+        {
+            id: "progressive-quote-named-insured",
+            hostIncludes: ["quoting.foragentsonly.com"],
+            pathIncludes: ["/quote/index"],
+            detect: [
+                "#NamedInsured_Embedded_Questions_List_FirstName",
+                "#NamedInsured_Embedded_Questions_List_LastName",
+                "#NamedInsured_Embedded_Questions_List_MailingAddress"
+            ],
+            fields: {
+                firstName: "#NamedInsured_Embedded_Questions_List_FirstName",
+                middleName: "#NamedInsured_Embedded_Questions_List_MiddleInitial",
+                lastName: "#NamedInsured_Embedded_Questions_List_LastName",
+                suffix: "#NamedInsured_Embedded_Questions_List_Suffix",
+
+                dob: "#NamedInsured_Embedded_Questions_List_DateOfBirth",
+                gender: "#NamedInsured_Embedded_Questions_List_Gender",
+
+                email: "#NamedInsured_Embedded_Questions_List_PrimaryEmailAddress",
+                phoneType: "#NamedInsured_PhoneNumbers_List_0_Embedded_Questions_List_PhoneType",
+                phone: "#NamedInsured_PhoneNumbers_List_0_Embedded_Questions_List_PhoneNumber",
+
+                address1: "#NamedInsured_Embedded_Questions_List_MailingAddress",
+                address2: "#NamedInsured_Embedded_Questions_List_ApartmentUnit",
+                city: "#NamedInsured_Embedded_Questions_List_City",
+                state: "#NamedInsured_Embedded_Questions_List_State",
+                zip: "#NamedInsured_Embedded_Questions_List_ZipCode"
+            }
+        },
+];
 
     function pickProfile() {
         const host = location.hostname.toLowerCase();
@@ -993,8 +1026,8 @@
         window.addEventListener("mousemove", (e) => {
             const menu = root.getElementById(MENU_ID);
             if (!menu) return;
-            if (e.clientX <= 6) menu.style.left = "0";
-            else if (!menu.matches(":hover") && e.clientX > 280) menu.style.left = "-268px";
+            if (e.clientX <= 20) menu.style.left = "0";
+            else if (!menu.matches(":hover") && e.clientX > 320) menu.style.left = "-268px";
         }, { passive: true });
 
         // Hand off to external QQC Contact Mapper script
