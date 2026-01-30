@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MCI Master Menu
 // @namespace    mci-tools
-// @version      5.3
+// @version      5.5
 // @description  MCI slide-out toolbox for carrier sites (QQ / Erie / NatGen / Progressive). Shadow DOM UI with smart clipboard buttons; hover far-left (or Alt+M) to open.
 // @match        https://app.qqcatalyst.com/*
 // @match        https://*.qqcatalyst.com/*
@@ -16,6 +16,9 @@
 // @match        https://natgen.beyondfloods.com/*
 // @match        https://nationalgeneral.torrentflood.com/*
 // @match        https://quoting.foragentsonly.com/*
+// @match        https://www.foragentsonly.com/*
+// @match        https://*.foragentsonly.com/*
+// @match        https://*.apps.foragentsonly.com/*
 // @run-at       document-idle
 // @grant        GM_setValue
 // @grant        GM_getValue
@@ -687,7 +690,7 @@
   .mci-btn.blue{ background:#2563eb } .mci-btn.blue:hover{ background:#2b6ef5 }
   .mci-btn.purple{ background:#7b68ee } .mci-btn.purple:hover{ background:#6c5ce7 }
   .mci-btn.gray{ background:#4b5563 } .mci-btn.gray:hover{ background:#374151 }
-  .mci-btn.brand{ background:#1e40af } .mci-btn.darkblue:hover{ background:#1e3a8a }
+  .mci-btn.brand{ background:#1e40af } .mci-btn.brand:hover{ background:#1e3a8a }
 
   .divider{ margin:12px 10px 10px; border-top:1px dashed rgba(255,255,255,.25); position:relative; height:0; }
   .divider::after{
@@ -796,6 +799,7 @@
       <button class="mci-btn blue" id="mci_fd_toggle">📥 File Downloader</button>
       <div class="mci-downloader-panel" id="mci_fd_panel">
         <button class="mci-btn purple" id="mci_fd_erie">Erie / NatGen</button>
+        <button class="mci-btn brand" id="mci_fd_prog">Progressive</button>
         <button class="mci-btn green" id="mci_fd_ncjua">NCJUA</button>
         <button class="mci-btn gray" id="mci_fd_flood">NatGen Flood</button>
       </div>
@@ -870,7 +874,7 @@
                 startPdfPopupObserver();
                 smartOpenPdfs(toast);
             });
-        
+
             // Fix / un-fix file names in the attachment list
             $s('#mci_fix_names')?.addEventListener('click', () => {
                 const res = toggleFileNameFix();
@@ -882,7 +886,7 @@
                     toast('File names returned to normal.');
                 }
             });
-        
+
             // Row highlighter
             $s('#mci_row_highlight')?.addEventListener('click', () => {
                 const count = attachRowHighlighter();
@@ -892,7 +896,7 @@
                         : 'No rows found to highlight on this page.'
                 );
             });
-        
+
             // Color picker for highlighted rows
             const colorInput = $s('#mci_row_color');
             if (colorInput) {
@@ -961,6 +965,22 @@
             $s('#mci_fd_toggle').textContent = 'File Downloader ▸';
             // run the Erie/NatGen row-click opener
             runErieNatGen();
+        });
+
+        $s('#mci_fd_prog')?.addEventListener('click', () => {
+            $s('#mci_fd_panel')?.classList.remove('open');
+            $s('#mci_fd_toggle').textContent = 'File Downloader ▸';
+            // Trigger Progressive downloader script (separate TM script)
+            try {
+                window.dispatchEvent(new CustomEvent('mci:progressive-downloader'));
+                toast('Progressive downloader triggered.');
+            } catch (e) {
+                // IE-safe-ish fallback isn't needed here, but keep simple:
+                const ev = document.createEvent('Event');
+                ev.initEvent('mci:progressive-downloader', true, true);
+                window.dispatchEvent(ev);
+                toast('Progressive downloader triggered.');
+            }
         });
 
         $s('#mci_fd_ncjua')?.addEventListener('click', () => {
