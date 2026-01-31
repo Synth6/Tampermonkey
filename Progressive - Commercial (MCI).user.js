@@ -1,10 +1,14 @@
 // ==UserScript==
 // @name         Progressive - Commercial (MCI)
-// @namespace    mci-tools
+// @namespace    https://middlecreekins.com/
 // @version      0.1.2
-// @description  Progressive Commercial: copy "Policy - Doc - Date" to clipboard without breaking JS doc links. Triggered by MCI Master Menu.
+// @description  Progressive Commercial: copy "Policy - Document - Date" to clipboard (Erie-style)
 // @match        https://clpolicy.foragentsonly.com/*
 // @match        https://*.foragentsonly.com/Express/*
+//
+// @updateURL    https://raw.githubusercontent.com/Synth6/Tampermonkey/main/Progressive%20-%20Commercial%20(MCI).user.js
+// @downloadURL  https://raw.githubusercontent.com/Synth6/Tampermonkey/main/Progressive%20-%20Commercial%20(MCI).user.js
+//
 // @run-at       document-idle
 // @grant        GM_setClipboard
 // ==/UserScript==
@@ -174,5 +178,6 @@
       e.stopPropagation();
     }
   }, true);
+
 
 })();
