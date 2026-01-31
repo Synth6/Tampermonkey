@@ -10,8 +10,8 @@
 // @match        https://*.foragentsonly.com/*
 // @match        https://*.apps.foragentsonly.com/*
 // @grant        none
-// @updateURL    https://raw.githubusercontent.com/Synth6/Tampermonkey/main/MCI%20Progressive%20Downloader.user.js
-// @downloadURL  https://raw.githubusercontent.com/Synth6/Tampermonkey/main/MCI%20Progressive%20Downloader.user.js
+// @updateURL    https://raw.githubusercontent.com/Synth6/Tampermonkey/main/MCI%20Progressive%20Downloader-%20Residential.user.js
+// @downloadURL  https://raw.githubusercontent.com/Synth6/Tampermonkey/main/MCI%20Progressive%20Downloader-%20Residential.user.js
 // ==/UserScript==
 
 (() => {
