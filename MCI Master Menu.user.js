@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         MCI Master Menu
 // @namespace    mci-tools
-// @version      5.5
-// @description  MCI slide-out toolbox for carrier sites (QQ / Erie / NatGen / Progressive). Shadow DOM UI with smart clipboard buttons; hover far-left (or Alt+M) to open.
+// @version      5.6.1
+// @description  MCI slide-out toolbox for carrier sites (QQ / Erie / NatGen / Progressive). Copy/Paste delegated to separate script.
 // @match        https://app.qqcatalyst.com/*
 // @match        https://*.qqcatalyst.com/*
 // @match        https://portal.agentexchange.com/*
@@ -308,283 +308,16 @@
         });
     }
 
+    
     /***************************
-     * COPY/PASTE PROFILES     *
+     * COPY/PASTE (delegated)  *
      ***************************/
-    const PROFILES = [
-        // ERIE: Start Quote
-        {
-            id: "erie-start-quote",
-            hostIncludes: ["agentexchange.com", "portal.agentexchange.com", "www.agentexchange.com"],
-            pathIncludes: [],
-            detect: ["#FirstName", "#LastName", "#MailingAddress_AddressLine1"],
-            fields: {
-                firstName: "#FirstName",
-                middleName: "#MiddleName",
-                lastName: "#LastName",
-                suffix: "#Suffix",
-                address1: "#MailingAddress_AddressLine1",
-                address2: "#MailingAddress_AddressLine2",
-                city: "#MailingAddress_City",
-                state: "#MailingAddress_State",
-                zip: "#MailingAddress_ZipCode",
-                dob: ["#dateOfBirth_month", "#dateOfBirth_day", "#dateOfBirth_year"]
-            }
-        },
-        // ERIE: Customer Edit / Summary
-        {
-            id: "erie-customer-edit",
-            hostIncludes: ["agentexchange.com", "portal.agentexchange.com", "www.agentexchange.com"],
-            pathIncludes: [],
-            detect: [
-                "#FirstNamedInsured_FirstName",
-                "#FirstNamedInsured_EmailAddress",
-                "#SSNText_1",
-                "#mailing-address-text"
-            ],
-            prep: () => {
-                document.querySelectorAll('button.customer-lockdown-buttons')?.forEach(btn => {
-                    const db = (btn.getAttribute('data-bind') || "").toLowerCase();
-                    if (db.includes('editbuttonclickevent')) try { btn.click(); } catch { }
-                });
-            },
-            fields: {
-                firstName: "#FirstNamedInsured_FirstName",
-                middleName: "#FirstNamedInsured_MiddleName",
-                lastName: "#FirstNamedInsured_LastName",
-                suffix: "#FirstNamedInsured_Suffix",
-                dob: "#txtDateOfBirth_1, [id^='txtDateOfBirth_']",
-                ssn: "#SSNText_1, [id^='SSNText_']",
-                email: "#FirstNamedInsured_EmailAddress, [id$='_EmailAddress']",
-                phone: "#FirstNamedInsuredNumber_0, [id^='FirstNamedInsuredNumber_']",
-                phoneType: "#FirstNamedInsuredPhoneType_0, [id^='FirstNamedInsuredPhoneType_']",
-                licenseState: "#selLicenseState1, [id^='selLicenseState']",
-                licenseNo: "#licenseNumber1, [id^='licenseNumber']"
-            }
-        },
-        // NATGEN: Personal Auto
-        {
-            id: "natgen-personal-auto",
-            hostIncludes: ["natgenagency.com", "www.natgenagency.com"],
-            pathIncludes: ["quotenamedinsured.aspx"],
-            suppressEvents: true, // shield postbacks while filling
-            detect: [
-                "#ctl00_MainContent_InsuredNamed1_txtInsFirstName",
-                "#ctl00_MainContent_InsuredNamed1_txtInsCity"
-            ],
-            fields: {
-                firstName: "#ctl00_MainContent_InsuredNamed1_txtInsFirstName",
-                middleName: "#ctl00_MainContent_InsuredNamed1_txtInsMiddleName",
-                lastName: "#ctl00_MainContent_InsuredNamed1_txtInsLastName",
-                suffix: "#ctl00_MainContent_InsuredNamed1_ddlInsSuffix",
-                phone: [
-                    "#ctl00_MainContent_InsuredNamed1_ucPhonesV2_PhoneNumber1_txtPhone1",
-                    "#ctl00_MainContent_InsuredNamed1_ucPhonesV2_PhoneNumber1_txtPhone2",
-                    "#ctl00_MainContent_InsuredNamed1_ucPhonesV2_PhoneNumber1_txtPhone3"
-                ],
-                email: "#ctl00_MainContent_InsuredNamed1_txtInsEmail",
-                dob: "#ctl00_MainContent_InsuredNamed1_txtInsDOB",
-                ssn: [
-                    "#ctl00_MainContent_InsuredNamed1_txtSocialSecurityNum1",
-                    "#ctl00_MainContent_InsuredNamed1_txtSocialSecurityNum2",
-                    "#ctl00_MainContent_InsuredNamed1_txtSocialSecurityNum3"
-                ],
-                address1: "#ctl00_MainContent_InsuredNamed1_txtInsAdr",
-                address2: "#ctl00_MainContent_InsuredNamed1_txtInsAdr2",
-                city: "#ctl00_MainContent_InsuredNamed1_txtInsCity",
-                state: "#ctl00_MainContent_InsuredNamed1_ddlInsState",
-                zip: [
-                    "#ctl00_MainContent_InsuredNamed1_txtInsZip",
-                    "#ctl00_MainContent_InsuredNamed1_txtInsZip2"
-                ]
-            }
-        },
+    // Copy/Paste logic has been moved to a separate Tampermonkey script.
+    // This menu only dispatches events that the separate script listens for:
+    //   - window 'mci:copy'
+    //   - window 'mci:paste'
 
-        // PROGRESSIVE: Quote Named Insured
-        {
-            id: "progressive-quote-named-insured",
-            hostIncludes: ["quoting.foragentsonly.com"],
-            pathIncludes: ["/quote/index"],
-            detect: [
-                "#NamedInsured_Embedded_Questions_List_FirstName",
-                "#NamedInsured_Embedded_Questions_List_LastName",
-                "#NamedInsured_Embedded_Questions_List_MailingAddress"
-            ],
-            fields: {
-                firstName: "#NamedInsured_Embedded_Questions_List_FirstName",
-                middleName: "#NamedInsured_Embedded_Questions_List_MiddleInitial",
-                lastName: "#NamedInsured_Embedded_Questions_List_LastName",
-                suffix: "#NamedInsured_Embedded_Questions_List_Suffix",
-
-                dob: "#NamedInsured_Embedded_Questions_List_DateOfBirth",
-                gender: "#NamedInsured_Embedded_Questions_List_Gender",
-
-                email: "#NamedInsured_Embedded_Questions_List_PrimaryEmailAddress",
-                phoneType: "#NamedInsured_PhoneNumbers_List_0_Embedded_Questions_List_PhoneType",
-                phone: "#NamedInsured_PhoneNumbers_List_0_Embedded_Questions_List_PhoneNumber",
-
-                address1: "#NamedInsured_Embedded_Questions_List_MailingAddress",
-                address2: "#NamedInsured_Embedded_Questions_List_ApartmentUnit",
-                city: "#NamedInsured_Embedded_Questions_List_City",
-                state: "#NamedInsured_Embedded_Questions_List_State",
-                zip: "#NamedInsured_Embedded_Questions_List_ZipCode"
-            }
-        },
-];
-
-    function pickProfile() {
-        const host = location.hostname.toLowerCase();
-        const path = (location.pathname + location.search).toLowerCase();
-        let best = null, bestScore = -1;
-        for (const p of PROFILES) {
-            const hOk = !p.hostIncludes?.length || p.hostIncludes.some(h => host.includes(h.toLowerCase()));
-            const pOk = !p.pathIncludes?.length || p.pathIncludes.some(pt => path.includes(pt.toLowerCase()));
-            if (!hOk || !pOk) continue;
-            const score = (p.detect || []).reduce((n, sel) => n + (document.querySelector(sel) ? 1 : 0), 0);
-            if (score > bestScore) { best = p; bestScore = score; }
-        }
-        return best;
-    }
-
-    function parseErieMailingAddress() {
-        const el = document.querySelector("#mailing-address-text");
-        if (!el) return null;
-        const t = el.innerText.replace(/\r/g, "").trim();
-        const lines = t.split(/\n+/);
-        if (lines.length < 2) return null;
-        const address1 = lines[0].trim();
-        const m = lines[1].match(/^(.+?),\s*([A-Z]{2})\s+(\d{5})(?:-(\d{4}))?$/i);
-        if (!m) return { address1 };
-        const city = m[1].trim();
-        const state = m[2].toUpperCase();
-        const zip5 = m[3];
-        const zip4 = m[4] || "";
-        return { address1, city, state, zip: zip4 ? `${zip5}-${zip4}` : zip5 };
-    }
-
-    async function readErieSensitive() {
-        const valOrEmpty = sel => (document.querySelector(sel)?.value || "").trim();
-        let dob = valOrEmpty("#txtDateOfBirth_1") || valOrEmpty("[id^='txtDateOfBirth_']");
-        let ssn = valOrEmpty("#SSNText_1") || valOrEmpty("[id^='SSNText_']");
-        let dln = valOrEmpty("#licenseNumber1") || valOrEmpty("[id^='licenseNumber']");
-        let email = valOrEmpty("#FirstNamedInsured_EmailAddress") || valOrEmpty("[id$='_EmailAddress']");
-        let phone = valOrEmpty("#FirstNamedInsuredNumber_0") || valOrEmpty("[id^='FirstNamedInsuredNumber_']");
-        const needReveal = looksMasked(dob) || looksMasked(ssn) || looksMasked(dln) || (!email && !phone);
-        if (needReveal) {
-            document.querySelectorAll(".reveal-data-btn").forEach(btn => { try { btn.click(); } catch { } });
-            await new Promise(r => setTimeout(r, 220));
-            if (!dob || looksMasked(dob)) dob = ($$(".editor-block .named-insured-value span, .named-insured-value").map(e => e.textContent?.trim()).find(tx => /^\d{2}\/\d{2}\/\d{4}$/.test(tx || ""))) || dob;
-            if (!ssn || looksMasked(ssn)) ssn = ($$(".editor-block .named-insured-value").map(e => e.textContent?.trim()).find(tx => /^\d{3}-\d{2}-\d{4}$/.test(tx || ""))) || ssn;
-            if (!dln || looksMasked(dln)) dln = ($$(".editor-block .named-insured-value").map(e => e.textContent?.trim()).find(tx => /^[A-Z0-9]{6,}$/i.test(tx || "") && !looksMasked(tx || ""))) || dln;
-            if (!email) {
-                const emTxt = $(".customer-lockdown-email")?.textContent?.trim();
-                if (emTxt && /@/.test(emTxt)) email = emTxt;
-            }
-            if (!phone) {
-                const t = $$(".editor-block .named-insured-value").map(e => e.textContent?.trim()).find(tx => /(\(\d{3}\)\s*\d{3}-\d{4})|(\d{3}-\d{3}-\d{4})|(\d{10})/.test(tx || ""));
-                if (t) phone = t;
-            }
-        }
-        return { dob, ssn, licenseNo: dln, email, phone };
-    }
-
-    async function withPostbackShield(fn) {
-        const savedPostBack = window.__doPostBack;
-        try { window.__doPostBack = function () { }; } catch { }
-        const blocker = e => e.stopImmediatePropagation();
-        document.addEventListener("input", blocker, true);
-        document.addEventListener("change", blocker, true);
-        document.addEventListener("blur", blocker, true);
-        try { return await fn(); }
-        finally {
-            document.removeEventListener("input", blocker, true);
-            document.removeEventListener("change", blocker, true);
-            document.removeEventListener("blur", blocker, true);
-            try { window.__doPostBack = savedPostBack; } catch { }
-        }
-    }
-
-    async function doCopy(toast) {
-        const prof = pickProfile();
-        if (!prof) return toast("No profile matched this page");
-        const data = {};
-        for (const [key, sel] of Object.entries(prof.fields)) {
-            if (Array.isArray(sel)) {
-                const vals = sel.map(s => getVal($(s)).trim());
-                if (key === "dob") data[key] = vals.join("/");
-                else if (["zip", "ssn", "phone"].includes(key)) data[key] = vals.filter(Boolean).join("-");
-                else data[key] = vals.join(" ");
-            } else {
-                const el = sel.includes(",") ? firstVisibleSelector(sel) : $(sel);
-                data[key] = getVal(el).trim();
-            }
-        }
-        if (prof.id.startsWith("erie-")) {
-            const addr = parseErieMailingAddress();
-            if (addr) {
-                data.address1 ||= addr.address1 || "";
-                data.city ||= addr.city || "";
-                data.state ||= addr.state || "";
-                data.zip ||= addr.zip || "";
-            }
-            try {
-                const sens = await readErieSensitive();
-                if (sens) {
-                    if (!data.dob || looksMasked(data.dob)) data.dob = sens.dob || data.dob || "";
-                    if (!data.ssn || looksMasked(data.ssn)) data.ssn = sens.ssn || data.ssn || "";
-                    if (!data.licenseNo || looksMasked(data.licenseNo)) data.licenseNo = sens.licenseNo || data.licenseNo || "";
-                    if (!data.email) data.email = sens.email || data.email || "";
-                    if (!data.phone) data.phone = sens.phone || data.phone || "";
-                }
-            } catch { }
-        }
-        if (data.dob) data.dob = fmtDOB(data.dob);
-        if (data.phone) { const d = onlyDigits(data.phone); if (d.length >= 10) data.phone = `${d.slice(0, 3)}-${d.slice(3, 6)}-${d.slice(6, 10)}`; }
-        if (data.ssn) { const d = onlyDigits(data.ssn); if (d.length === 9) data.ssn = `${d.slice(0, 3)}-${d.slice(3, 5)}-${d.slice(5, 9)}`; }
-        const json = JSON.stringify({ __profile: prof.id, ...data });
-        try { await navigator.clipboard.writeText(json); toast(`Copied (${prof.id})`); }
-        catch { toast("Clipboard copy blocked"); }
-    }
-
-    async function doPaste(toast) {
-        const prof = pickProfile();
-        if (!prof) return toast("No profile matched this page");
-        try { prof.prep && prof.prep(); } catch { }
-        let data;
-        try { data = JSON.parse(await navigator.clipboard.readText() || "{}"); }
-        catch { return toast("Clipboard JSON invalid"); }
-
-        const apply = () => {
-            for (const [key, sel] of Object.entries(prof.fields)) {
-                let val = data[key];
-                if (val == null || val === "") continue;
-                const fire = !prof.suppressEvents;
-                if (Array.isArray(sel)) {
-                    let parts = [];
-                    if (key === "phone") parts = splitPhone(val);
-                    else if (key === "ssn") parts = splitSSN(val);
-                    else if (key === "zip") parts = splitZIP(val);
-                    else if (key === "dob") parts = splitDOB(val);
-                    else parts = String(val).split(/[-/\s]+/);
-                    sel.forEach((s, i) => setInput($(s), parts[i] ?? "", fire));
-                    continue;
-                }
-                const el = sel.includes(",") ? firstVisibleSelector(sel) : $(sel);
-                if (!el) continue;
-                if (key === "dob" && el && el.tagName !== "SELECT") val = fmtDOB(val);
-                setInput(el, val, fire);
-            }
-            if (prof.suppressEvents) {
-                const any = $("#ctl00_MainContent_InsuredNamed1_txtInsFirstName");
-                if (any) any.dispatchEvent(new Event("input", { bubbles: true }));
-            }
-        };
-
-        if (prof.suppressEvents) await withPostbackShield(apply); else apply();
-        toast(`Pasted (${prof.id})`);
-    }
-
-    /**********************
+/**********************
      * SHADOW UI (menu)   *
      **********************/
     function mount() {
@@ -692,6 +425,37 @@
   .mci-btn.gray{ background:#4b5563 } .mci-btn.gray:hover{ background:#374151 }
   .mci-btn.brand{ background:#1e40af } .mci-btn.brand:hover{ background:#1e3a8a }
 
+  /* Progressive split button (looks like one button, two actions) */
+  .mci-split-btn{
+    display:flex;
+    width:100%;
+    border-radius:8px;
+    overflow:hidden;
+    border:1px solid rgba(255,255,255,.12);
+    padding: 0px;
+    height: 37px;
+  }
+  .mci-split-btn.brand{ background:#1e40af; }
+  .mci-split-half{
+    flex:1;
+    border:none;
+    margin:0;
+    background:transparent;
+    color:#fff;
+    text-align:center;
+    cursor:pointer;
+    font:inherit;
+    line-height:1.2;
+    transition:background .15s, transform .05s;
+  }
+  .mci-split-half:hover{ background:rgba(0,0,0,.18); }
+  .mci-split-half:active{ transform:scale(.99); }
+  .mci-split-divider{
+    width:1px;
+    background:rgba(255,255,255,.18);
+  }
+
+
   .divider{ margin:12px 10px 10px; border-top:1px dashed rgba(255,255,255,.25); position:relative; height:0; }
   .divider::after{
     content:attr(data-label); position:absolute; left:50%; transform:translate(-50%,-55%);
@@ -796,10 +560,14 @@
   <div class="divider" data-label="File Downloader"></div>
   <div class="mci-section"><div class="mci-body">
     <div class="mci-downloader">
-      <button class="mci-btn blue" id="mci_fd_toggle">📥 File Downloader</button>
+      <button class="mci-btn blue" id="mci_fd_toggle">📥 File Downloader ▸</button>
       <div class="mci-downloader-panel" id="mci_fd_panel">
         <button class="mci-btn purple" id="mci_fd_erie">Erie / NatGen</button>
-        <button class="mci-btn brand" id="mci_fd_prog">Progressive</button>
+        <div class="mci-split-btn brand" role="group" aria-label="Progressive Downloader">
+          <button class="mci-split-half" id="mci_fd_prog_res" type="button" title="Trigger Progressive Residential downloader">Progressive Residential</button>
+          <div class="mci-split-divider" aria-hidden="true"></div>
+          <button class="mci-split-half" id="mci_fd_prog_com" type="button" title="Trigger Progressive Commercial downloader">Progressive Commercial</button>
+        </div>
         <button class="mci-btn green" id="mci_fd_ncjua">NCJUA</button>
         <button class="mci-btn gray" id="mci_fd_flood">NatGen Flood</button>
       </div>
@@ -954,8 +722,14 @@
         });
 
         // Wire actions: Copy/Paste mapper (unchanged)
-        $s("#mci_copy")?.addEventListener("click", () => doCopy(toast));
-        $s("#mci_paste")?.addEventListener("click", () => doPaste(toast));
+        $s("#mci_copy")?.addEventListener("click", () => {
+            window.dispatchEvent(new CustomEvent("mci:copy"));
+            toast && toast("Copy requested…");
+        });
+        $s("#mci_paste")?.addEventListener("click", () => {
+            window.dispatchEvent(new CustomEvent("mci:paste"));
+            toast && toast("Paste requested…");
+        });
 
 
         // Wire the File Downloader action buttons
@@ -967,19 +741,38 @@
             runErieNatGen();
         });
 
-        $s('#mci_fd_prog')?.addEventListener('click', () => {
+        $s('#mci_fd_prog_res')?.addEventListener('click', () => {
             $s('#mci_fd_panel')?.classList.remove('open');
             $s('#mci_fd_toggle').textContent = 'File Downloader ▸';
-            // Trigger Progressive downloader script (separate TM script)
+            // Trigger Progressive Residential downloader script (separate TM script)
             try {
+                window.dispatchEvent(new CustomEvent('mci:progressive-residential'));
+                // Back-compat with older residential listener (safe to keep)
                 window.dispatchEvent(new CustomEvent('mci:progressive-downloader'));
-                toast('Progressive downloader triggered.');
+                toast('Progressive Residential triggered.');
             } catch (e) {
-                // IE-safe-ish fallback isn't needed here, but keep simple:
+                const ev1 = document.createEvent('Event');
+                ev1.initEvent('mci:progressive-residential', true, true);
+                window.dispatchEvent(ev1);
+                const ev2 = document.createEvent('Event');
+                ev2.initEvent('mci:progressive-downloader', true, true);
+                window.dispatchEvent(ev2);
+                toast('Progressive Residential triggered.');
+            }
+        });
+
+        $s('#mci_fd_prog_com')?.addEventListener('click', () => {
+            $s('#mci_fd_panel')?.classList.remove('open');
+            $s('#mci_fd_toggle').textContent = 'File Downloader ▸';
+            // Trigger Progressive Commercial downloader script (separate TM script)
+            try {
+                window.dispatchEvent(new CustomEvent('mci:progressive-commercial'));
+                toast('Progressive Commercial triggered.');
+            } catch (e) {
                 const ev = document.createEvent('Event');
-                ev.initEvent('mci:progressive-downloader', true, true);
+                ev.initEvent('mci:progressive-commercial', true, true);
                 window.dispatchEvent(ev);
-                toast('Progressive downloader triggered.');
+                toast('Progressive Commercial triggered.');
             }
         });
 
