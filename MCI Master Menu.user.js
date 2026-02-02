@@ -7,7 +7,7 @@
 // @match        https://*.qqcatalyst.com/*
 // @match        https://portal.agentexchange.com/*
 // @match        https://www.agentexchange.com/*
-// @match        https://agentexchange.com/*
+// @match        https://*.agentexchange.com/*
 // @match        https://customerdatamanagement.agentexchange.com/*
 // @match        https://natgenagency.com/*
 // @match        https://*.natgenagency.com/*
@@ -1691,3 +1691,4 @@ function runFaxEnhancer() {
     }
 
 })();
+
