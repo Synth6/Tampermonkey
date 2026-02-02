@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         MCI Progressive Downloader - Residential
+// @name         Progressive - Residential Downloader (MCI)
 // @namespace    https://middlecreekins.com/
 // @version      1.7
 // @description  Progressive bulk downloader helper. Injects checkboxes before Date, highlights rows, downloads selected. Copy button exports ONLY checked rows as: Policy - Title - M-D-YYYY (no "(PDF)") for BAT renaming.
