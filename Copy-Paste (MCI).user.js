@@ -19,6 +19,8 @@
 // @match        https://www.foragentsonly.com/*
 // @match        https://*.foragentsonly.com/*
 // @match        https://*.apps.foragentsonly.com/*
+// @updateURL    https://raw.githubusercontent.com/Synth6/Tampermonkey/main/Copy-Paste%20(MCI).user.js
+// @downloadURL  https://raw.githubusercontent.com/Synth6/Tampermonkey/main/Copy-Paste%20(MCI).user.js
 // @run-at       document-idle
 // @grant        GM_setClipboard
 // ==/UserScript==
