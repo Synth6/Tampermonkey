@@ -6,6 +6,8 @@
 // @author       MCI / Ron
 // @match        https://nationalgeneral.torrentflood.com/*
 // @match        https://*.torrentflood.com/*
+// @updateURL    https://raw.githubusercontent.com/Synth6/Tampermonkey/main/NFIP%20-%20Downloader%20(MCI).user.js
+// @downloadURL  https://raw.githubusercontent.com/Synth6/Tampermonkey/main/NFIP%20-%20Downloader%20(MCI).user.js
 // @run-at       document-end
 // @grant        none
 // ==/UserScript==
