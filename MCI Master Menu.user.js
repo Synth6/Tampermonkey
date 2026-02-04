@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MCI Master Menu
 // @namespace    mci-tools
-// @version      5.6.1
+// @version      5.6.2
 // @description  MCI slide-out toolbox for carrier sites (QQ / Erie / NatGen / Progressive). Copy/Paste delegated to separate script.
 // @match        https://app.qqcatalyst.com/*
 // @match        https://*.qqcatalyst.com/*
@@ -308,7 +308,7 @@
         });
     }
 
-    
+
     /***************************
      * COPY/PASTE (delegated)  *
      ***************************/
@@ -424,6 +424,7 @@
   .mci-btn.purple{ background:#7b68ee } .mci-btn.purple:hover{ background:#6c5ce7 }
   .mci-btn.gray{ background:#4b5563 } .mci-btn.gray:hover{ background:#374151 }
   .mci-btn.brand{ background:#1e40af } .mci-btn.brand:hover{ background:#1e3a8a }
+  .mci-btn.aqua{ background:#32a8a2 } .mci-btn.aqua:hover{ background:#2c948f }
 
   /* Progressive split button (looks like one button, two actions) */
   .mci-split-btn{
@@ -436,6 +437,7 @@
     height: 37px;
   }
   .mci-split-btn.brand{ background:#1e40af; }
+  .mci-split-btn.aqua{ background:#32a8a2; }
   .mci-split-half{
     flex:1;
     border:none;
@@ -569,7 +571,11 @@
           <button class="mci-split-half" id="mci_fd_prog_com" type="button" title="Trigger Progressive Commercial downloader">Progressive Commercial</button>
         </div>
         <button class="mci-btn green" id="mci_fd_ncjua">NCJUA</button>
-        <button class="mci-btn gray" id="mci_fd_flood">NatGen Flood</button>
+        <div class="mci-split-btn aqua" role="group" aria-label="NatGen Flood Downloader">
+          <button class="mci-split-half" id="mci_fd_flood_beyond" type="button" title="Trigger Beyond Floods downloader">Beyond Floods</button>
+          <div class="mci-split-divider" aria-hidden="true"></div>
+          <button class="mci-split-half" id="mci_fd_flood_nfip" type="button" title="Trigger NFIP Flood downloader">NFIP Flood</button>
+        </div>
       </div>
     </div>
   </div></div>
@@ -783,24 +789,37 @@
             runNCJUA();
         });
 
-        $s('#mci_fd_flood')?.addEventListener('click', () => {
-            $s('#mci_fd_panel')?.classList.remove('open');
-            $s('#mci_fd_toggle').textContent = 'File Downloader ▸';
-            // open the NatGen Flood selector/downloader
-            runFlood();
-        });
 
-        $s('#mci_fd_ncjua')?.addEventListener('click', () => {
-            $s('#mci_fd_panel')?.classList.remove('open');
-            $s('#mci_fd_toggle').textContent = 'File Downloader ▸';
-            runNCJUA();
-        });
+$s('#mci_fd_flood_beyond')?.addEventListener('click', () => {
+    $s('#mci_fd_panel')?.classList.remove('open');
+    $s('#mci_fd_toggle').textContent = 'File Downloader ▸';
+    // Trigger Beyond Floods downloader script (separate TM script)
+    try {
+        window.dispatchEvent(new CustomEvent('mci:flood-beyond'));
+        toast('Beyond Floods triggered.');
+    } catch (e) {
+        const ev = document.createEvent('Event');
+        ev.initEvent('mci:flood-beyond', true, true);
+        window.dispatchEvent(ev);
+        toast('Beyond Floods triggered.');
+    }
+});
 
-        $s('#mci_fd_flood')?.addEventListener('click', () => {
-            $s('#mci_fd_panel')?.classList.remove('open');
-            $s('#mci_fd_toggle').textContent = 'File Downloader ▸';
-            runFlood();
-        });
+$s('#mci_fd_flood_nfip')?.addEventListener('click', () => {
+    $s('#mci_fd_panel')?.classList.remove('open');
+    $s('#mci_fd_toggle').textContent = 'File Downloader ▸';
+    // Trigger NFIP Flood downloader script (separate TM script)
+    try {
+        window.dispatchEvent(new CustomEvent('mci:flood-nfip'));
+        toast('NFIP Flood triggered.');
+    } catch (e) {
+        const ev = document.createEvent('Event');
+        ev.initEvent('mci:flood-nfip', true, true);
+        window.dispatchEvent(ev);
+        toast('NFIP Flood triggered.');
+    }
+});
+
 
         // === Export Quote (Auto / Home) ===
         $s('#mci_export_auto')?.addEventListener('click', () => {
@@ -1493,132 +1512,6 @@
         }
     }
 
-
-
-
-    // ===================================== //
-    // ============ Erie FLOOD ============= //
-    // ===================================== //
-
-    function runFlood() {
-        const rows = document.querySelectorAll("#DocumentListContentContainer > tr");
-        if (!rows.length) return alert("No document rows found.");
-
-        // Create minimal, lighter UI
-        const box = document.createElement("div");
-        box.innerHTML = `
-    <div style="background:#f1f1f1;color:#333;padding:6px 10px;cursor:move;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #ccc;">
-      <span style="font-weight:bold;">📄NatGen PDF Downloader</span>
-      <button id="closeDownloader" style="background:#e74c3c;color:white;border:none;padding:2px 8px;border-radius:4px;cursor:pointer;">X</button>
-    </div>
-    <div style="padding:10px;">
-      <label><input type="checkbox" id="selectAllCheckbox"> Select All</label>
-      <button id="downloadSelected" style="margin-left:10px;padding:4px 8px;">Download Selected</button>
-      <div id="pdfLog" style="margin-top:8px;max-height:150px;overflow:auto;font-size:11px;line-height:1.4;color:#444;"></div>
-    </div>
-  `;
-        Object.assign(box.style, {
-            position: "fixed",
-            top: "80px",
-            left: "80px",
-            background: "#fff",
-            border: "1px solid #ccc",
-            zIndex: 9999,
-            width: "260px",
-            borderRadius: "6px",
-            boxShadow: "2px 2px 8px rgba(0,0,0,0.2)",
-            fontFamily: "Arial, sans-serif",
-            fontSize: "13px",
-        });
-        document.body.appendChild(box);
-        window.__pdfDownloaderBox = box;
-
-        // Drag functionality
-        const header = box.querySelector("div:first-child");
-        header.onmousedown = function (e) {
-            const offsetX = e.clientX - box.offsetLeft;
-            const offsetY = e.clientY - box.offsetTop;
-
-            function move(e) {
-                box.style.left = e.clientX - offsetX + "px";
-                box.style.top = e.clientY - offsetY + "px";
-            }
-            document.addEventListener("mousemove", move);
-            document.onmouseup = () => document.removeEventListener("mousemove", move);
-        };
-
-        // Close button
-        box.querySelector("#closeDownloader").onclick = () => {
-            box.remove();
-            delete window.__pdfDownloaderBox;
-            document.querySelectorAll(".pdfCheckboxCell").forEach(el => el.remove());
-        };
-
-        // Add checkboxes to table
-        rows.forEach(row => {
-            const td = document.createElement("td");
-            td.className = "pdfCheckboxCell";
-            td.style.textAlign = "center";
-            td.innerHTML = `<input type="checkbox" class="pdfCheckbox">`;
-            row.insertBefore(td, row.firstElementChild);
-        });
-
-        // Select All toggle
-        box.querySelector("#selectAllCheckbox").onchange = function () {
-            const checked = this.checked;
-            document.querySelectorAll(".pdfCheckbox").forEach(cb => cb.checked = checked);
-        };
-
-        // Download logic
-        box.querySelector("#downloadSelected").onclick = async function () {
-            const log = box.querySelector("#pdfLog");
-            log.innerHTML = "";
-
-            const selectedRows = Array.from(rows).filter(row => row.querySelector(".pdfCheckbox")?.checked);
-            if (!selectedRows.length) return alert("No files selected.");
-
-            const policyNumElem = document.querySelector(".display_value_PolicySummaryView_NFIPPolicyNum");
-            const policyNum = policyNumElem ? policyNumElem.textContent.trim() : "NoPolicy";
-
-            for (const row of selectedRows) {
-                try {
-                    const name = row.querySelector(".documentName")?.textContent.trim();
-                    const type = row.cells[4]?.innerText.trim().replace(/\s+/g, "_");
-                    const created = row.cells[5]?.innerText.trim().replace(/\//g, "-");
-                    const link = row.querySelector("a.JSDocumentLink")?.href;
-
-                    if (!link) {
-                        log.innerHTML += `<div>❌ No link for "${name}"</div>`;
-                        continue;
-                    }
-
-                    const fileName = `${policyNum} - ${name} - ${type} - ${created}.pdf`.replace(/[\\/:*?"<>|]/g, "_");
-
-                    // ✅ Force download via fetch + blob
-                    const response = await fetch(link);
-                    const blob = await response.blob();
-                    const blobUrl = URL.createObjectURL(blob);
-
-                    const a = document.createElement("a");
-                    a.href = blobUrl;
-                    a.download = fileName;
-                    document.body.appendChild(a);
-                    a.click();
-                    a.remove();
-
-                    URL.revokeObjectURL(blobUrl); // Clean up
-
-                    log.innerHTML += `<div>✔️ Downloaded: ${fileName}</div>`;
-                } catch (e) {
-                    log.innerHTML += `<div>❌ Error downloading file: ${e.message}</div>`;
-                }
-            }
-        };
-
-
-    }
-
-
     // Boot the menu
     if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", mount);
     else mount();
@@ -1691,4 +1584,3 @@ function runFaxEnhancer() {
     }
 
 })();
-
