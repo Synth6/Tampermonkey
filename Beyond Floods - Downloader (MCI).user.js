@@ -5,6 +5,8 @@
 // @description  Inject checkboxes + Select All + Download Selected into Beyond Floods Customer Documents page. Sequentially clicks the existing links (no fetch/blob).
 // @match        https://natgen.beyondfloods.com/*
 // @match        https://*.beyondfloods.com/*
+// @updateURL    https://raw.githubusercontent.com/Synth6/Tampermonkey/main/Beyond%20Floods%20-%20Downloader%20(MCI).user.js
+// @downloadURL  https://raw.githubusercontent.com/Synth6/Tampermonkey/main/Beyond%20Floods%20-%20Downloader%20(MCI).user.js
 // @run-at       document-idle
 // @grant        none
 // ==/UserScript==
