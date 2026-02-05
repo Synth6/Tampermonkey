@@ -317,7 +317,7 @@
     //   - window 'mci:copy'
     //   - window 'mci:paste'
 
-/**********************
+    /**********************
      * SHADOW UI (menu)   *
      **********************/
     function mount() {
@@ -465,8 +465,8 @@
   .mci-host{ opacity:.75; font-weight:600; font-size:12px }
   .mci-body{ padding:8px 10px }
   .mci-btn{ display:block; width:100%; margin:6px 0; padding:9px 10px; border-radius:8px;
-            border:1px solid rgba(255,255,255,.12); background:#2a2f39; color:#fff; text-align:left;
-            cursor:pointer; transition:transform .05s, background .15s; line-height:1.2; }
+    border:1px solid rgba(255,255,255,.12); background:#2a2f39; color:#fff; text-align:left;
+    cursor:pointer; transition:transform .05s, background .15s; line-height:1.2; }
   .mci-btn:hover{ background:#394152 } .mci-btn:active{ transform:scale(.99) }
   .mci-btn.primary{ background:#1f6feb } .mci-btn.primary:hover{ background:#2b79f0 }
   .mci-btn.green{ background:#3ba55d } .mci-btn.green:hover{ background:#44b569 }
@@ -561,8 +561,8 @@
 </style>
 
 <button id="${TRIGGER_ID}" type="button" title="MCI Toolbox" aria-label="Toggle MCI Toolbox">
-  <span class="mci-tab-mark" style="background-image:url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2264%22%20height%3D%2264%22%20viewBox%3D%220%200%2064%2064%22%3E%3Ccircle%20cx%3D%2232%22%20cy%3D%2232%22%20r%3D%2230%22%20fill%3D%22%23ffffff%22%20fill-opacity%3D%220.16%22%2F%3E%3Cpath%20d%3D%22M16%2044V20h6l10%2014%2010-14h6v24h-6V30l-10%2014-10-14v14z%22%20fill%3D%22%23ffffff%22%2F%3E%3C%2Fsvg%3E')"></span>
-  <span class="mci-tab-label">MCI</span>
+<span class="mci-tab-mark" style="background-image:url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2264%22%20height%3D%2264%22%20viewBox%3D%220%200%2064%2064%22%3E%3Ccircle%20cx%3D%2232%22%20cy%3D%2232%22%20r%3D%2230%22%20fill%3D%22%23ffffff%22%20fill-opacity%3D%220.16%22%2F%3E%3Cpath%20d%3D%22M16%2044V20h6l10%2014%2010-14h6v24h-6V30l-10%2014-10-14v14z%22%20fill%3D%22%23ffffff%22%2F%3E%3C%2Fsvg%3E')"></span> 
+<span class="mci-tab-label">MCI</span>
 </button>
 <div id="${MENU_ID}">
   <div class="mci-head">
