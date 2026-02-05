@@ -21,6 +21,8 @@
 // @grant        GM_setValue
 // @grant        GM_getValue
 // @grant        GM_deleteValue
+// @updateURL   https://raw.githubusercontent.com/Synth6/Tampermonkey/main/Smart%20Lookup%20(MCI).user.js
+// @downloadURL https://raw.githubusercontent.com/Synth6/Tampermonkey/main/Smart%20Lookup%20(MCI).user.js
 // @run-at       document-idle
 // @allFrames    true
 // ==/UserScript==
