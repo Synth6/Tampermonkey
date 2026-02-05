@@ -651,7 +651,7 @@
 
     <div class="group">
     <div class="list">
-        <div><span class="kbd">ALT</span> + <span class="kbd">Right-Click</span><span><b>SMART LOOKUP</b></div></span>
+        <div><span class="kbd">ALT</span> + <span class="kbd">Right-Click</span><span><b> SMART LOOKUP</b></div></span>
         <div>Name → Address → Policy #</div>
     </div>
     </div>
@@ -1656,3 +1656,4 @@ function runFaxEnhancer() {
     }
 
 })();
+
