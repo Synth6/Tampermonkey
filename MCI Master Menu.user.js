@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MCI Master Menu
 // @namespace    mci-tools
-// @version      5.6.3
+// @version      5.7.1
 // @description  MCI slide-out toolbox for carrier sites (QQ / Erie / NatGen / Progressive). Copy/Paste delegated to separate script.
 // @match        https://app.qqcatalyst.com/*
 // @match        https://*.qqcatalyst.com/*
@@ -345,19 +345,70 @@
   :host{ all:initial; }
   *, *::before, *::after{ box-sizing:border-box; }
 
+  /* Edge Tab (click to open) */
   #${TRIGGER_ID}{
-    position:fixed; top:0; left:0; width:4px; height:100vh;
-    z-index:2147483647; background:transparent; cursor:ew-resize;
+    position:fixed;
+    top:50%;
+    left:0;
+    transform:translateY(-50%);
+    width:18px;
+    height:54px;
+    z-index:2147483647;
+    background:#0a5efa;
+    color:#fff;
+    border:none;
+    border-radius:0 10px 10px 0;
+    cursor:pointer;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:6px;
+    padding:6px 0;
+    opacity:.90;
+    box-shadow:2px 0 10px rgba(0,0,0,.35);
+    transition:opacity .15s ease, width .15s ease, background .15s ease, box-shadow .2s ease;
   }
+  #${TRIGGER_ID}:hover{
+    opacity:1;
+    width:22px;
+    background:#1e3a8a;
+    box-shadow:3px 0 14px rgba(0,0,0,.45);
+  }
+  #${TRIGGER_ID}[data-open="1"]{
+    opacity:.55;
+  }
+
+  .mci-tab-mark{
+    width:14px;
+    height:14px;
+    border-radius:50%;
+    background-size:contain;
+    background-repeat:no-repeat;
+    background-position:center;
+  }
+  .mci-tab-label{
+    writing-mode:vertical-rl;
+    transform:rotate(180deg);
+    font:700 10px system-ui,Segoe UI,Arial;
+    letter-spacing:.8px;
+    opacity:.95;
+    user-select:none;
+  }
+
   #${MENU_ID}{
     position:fixed; top:0; left:-268px; width:268px; height:100vh;
     background:#1a1c22; color:#eef3ff; z-index:2147483646;
-    padding-top:0px; box-shadow:2px 0 8px rgba(0,0,0,.5);
-    transition:left .25s ease; overflow-x:hidden; overflow-y:auto;
+    padding-top:0px; box-shadow:2px 0 10px rgba(0,0,0,.55);
+    transition:left .22s cubic-bezier(.2,.9,.2,1), box-shadow .22s ease, filter .22s ease;
+    overflow-x:hidden; overflow-y:auto;
     font:13px system-ui,Segoe UI,Arial;
+    will-change:left;
   }
-  #${TRIGGER_ID}:hover + #${MENU_ID},
-  #${MENU_ID}:hover{ left:0 !important; }
+  #${MENU_ID}[data-open="1"]{
+    left:0 !important;
+    filter:brightness(1.02);
+  }
 
   .mci-section{ margin:10px 10px 6px; border:1px solid rgba(255,255,255,.06); border-radius:10px; background:#20232b; overflow:hidden; }
    .mci-head{
@@ -509,7 +560,10 @@
 
 </style>
 
-<div id="${TRIGGER_ID}" title="Hover to open"></div>
+<button id="${TRIGGER_ID}" type="button" title="MCI Toolbox" aria-label="Toggle MCI Toolbox">
+  <span class="mci-tab-mark" style="background-image:url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2264%22%20height%3D%2264%22%20viewBox%3D%220%200%2064%2064%22%3E%3Ccircle%20cx%3D%2232%22%20cy%3D%2232%22%20r%3D%2230%22%20fill%3D%22%23ffffff%22%20fill-opacity%3D%220.16%22%2F%3E%3Cpath%20d%3D%22M16%2044V20h6l10%2014%2010-14h6v24h-6V30l-10%2014-10-14v14z%22%20fill%3D%22%23ffffff%22%2F%3E%3C%2Fsvg%3E')"></span>
+  <span class="mci-tab-label">MCI</span>
+</button>
 <div id="${MENU_ID}">
   <div class="mci-head">
     <div class="mci-head-top">
@@ -636,6 +690,29 @@
         };
 
         const $s = sel => root.querySelector(sel);
+
+        // Menu open/close helpers (click tab to toggle)
+        const _menuEl = $s(`#${MENU_ID}`);
+        const _tabEl  = $s(`#${TRIGGER_ID}`);
+
+        function setMenuOpen(open) {
+            if (_menuEl) {
+                _menuEl.style.left = open ? "0" : "-268px";
+                _menuEl.setAttribute("data-open", open ? "1" : "");
+            }
+            if (_tabEl) _tabEl.setAttribute("data-open", open ? "1" : "");
+        }
+
+        // Default closed (Alt+M still toggles)
+        setMenuOpen(false);
+
+        if (_tabEl) {
+            _tabEl.addEventListener("click", () => {
+                const isOpen = _menuEl && _menuEl.getAttribute("data-open") === "1";
+                setMenuOpen(!isOpen);
+            });
+        }
+
 
         // QQ-only button handlers
         if (IS_QQ) {
@@ -851,14 +928,6 @@ $s('#mci_fd_flood_nfip')?.addEventListener('click', () => {
             }
         });
 
-        // Edge hover watcher (host page coordinates)
-        window.addEventListener("mousemove", (e) => {
-            const menu = root.getElementById(MENU_ID);
-            if (!menu) return;
-            if (e.clientX <= 20) menu.style.left = "0";
-            else if (!menu.matches(":hover") && e.clientX > 320) menu.style.left = "-268px";
-        }, { passive: true });
-
         // Hand off to external QQC Contact Mapper script
         $s("#mci_open_qqc")?.addEventListener("click", () => {
             triggerContactMapper("auto");
@@ -878,7 +947,13 @@ $s('#mci_fd_flood_nfip')?.addEventListener('click', () => {
         if (e.altKey && !e.shiftKey && k === TOGGLE_KEY) {
             const root = mount();
             const menu = root.getElementById(MENU_ID);
-            menu.style.left = (menu.style.left === "0px") ? "-268px" : "0";
+            const tab = root.getElementById(TRIGGER_ID);
+            const isOpen = (menu && menu.getAttribute("data-open") === "1");
+            if (menu) {
+                menu.style.left = isOpen ? "-268px" : "0";
+                menu.setAttribute("data-open", isOpen ? "" : "1");
+            }
+            if (tab) tab.setAttribute("data-open", isOpen ? "" : "1");
             e.preventDefault();
         }
         if (e.altKey && e.shiftKey && k === TOGGLE_KEY) {
