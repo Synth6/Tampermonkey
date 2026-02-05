@@ -4,8 +4,8 @@
 // Not authorized for redistribution or resale.
 // @name        Smart Lookup (MCI)
 // @namespace    mci-tools
-// @version      4.2.0
-// @description  ALT+Right-Click: pinned chooser for Address/Name/Policy. Address: Wake/Maps/Vexcel combos. Name: LinkedIn/Google/Facebook. Policy: Erie/NatGen/Progressive (with safe “wait for login” automation).
+// @version      4.3.0
+// @description  ALT+Right-Click: pinned chooser for Address/Name/Policy. Address: Wake/Maps/Vexcel combos. Name: LinkedIn/Google/Facebook. Policy: Erie/NatGen/Progressive/NFIP
 // @match        *://*/*
 // @match        file://*/*
 // @match        https://services.wake.gov/realestate/*
@@ -16,6 +16,7 @@
 // @match        https://natgenagency.com/*
 // @match        https://app.vexcelgroup.com/*
 // @match        https://www.foragentsonly.com/*
+// @match        https://nationalgeneral.torrentflood.com/*
 // @grant        GM_openInTab
 // @grant        GM_addStyle
 // @grant        GM_setValue
@@ -55,11 +56,17 @@
   // Vexcel
   const VEX_ORIGIN  = "https://app.vexcelgroup.com";
 
+  // NFIP (TorrentFlood)
+  const NFIP_ORIGIN = "https://nationalgeneral.torrentflood.com";
+  const NFIP_PATH   = "/Dashboard/Agency";
+
   /* ================= STORAGE KEYS ================= */
   // Erie
   const K_ERIE_POL="carrier.erie.pol", K_ERIE_AWAIT="carrier.erie.await";
   // NatGen
   const K_NG_POL="carrier.ng.pol",     K_NG_AWAIT="carrier.ng.await";
+  // NFIP
+  const K_NFIP_POL="carrier.nfip.pol", K_NFIP_AWAIT="carrier.nfip.await";
   // Vexcel
   const K_VEX_ADDR="vexcel.addr",      K_VEX_AWAIT="vexcel.await";
   // Progressive
@@ -391,6 +398,24 @@
     try { if (typeof GM_setValue === "function") GM_setValue(K_PR_POL, digits); } catch(_){}
     return digits;
   }
+  function openNFIP(pol){
+    const ts = armAutomations(Date.now());
+    const p = String(pol||"").trim();
+    if(!p){ toast("No policy detected."); return; }
+
+    try{
+      sessionStorage.setItem(K_NFIP_POL, p);
+      sessionStorage.setItem(K_NFIP_AWAIT,"1");
+    }catch(_){}
+
+    window.open(
+      NFIP_ORIGIN + NFIP_PATH + "#pol=" + encodeURIComponent(p) + "&mci=1&ts=" + encodeURIComponent(String(ts)),
+      "_blank"
+    );
+    toast(`NFIP: ${p}`);
+  }
+
+
 
   function openProgressive(pol){
     const ts = armAutomations(Date.now());
@@ -550,7 +575,8 @@
           [
             {value:"pol_erie",        label:"Policy: Erie"},
             {value:"pol_natgen",      label:"Policy: NatGen"},
-            {value:"pol_progressive", label:"Policy: Progressive"}
+            {value:"pol_progressive", label:"Policy: Progressive"},
+            {value:"pol_nfip",        label:"Policy: NFIP"}
           ],
           {pol},
           pol
@@ -588,6 +614,7 @@
     if(action==="pol_erie")        return openErie(payload.pol);
     if(action==="pol_natgen")      return openNatGen(payload.pol);
     if(action==="pol_progressive") return openProgressive(payload.pol);
+    if(action==="pol_nfip")        return openNFIP(payload.pol);
   }
 
   // ALT + RIGHT-CLICK opens chooser pinned at cursor
@@ -893,6 +920,104 @@ const visible = el => {
       })();
     })();
   }
+  // NFIP (TorrentFlood) — quick search on Dashboard/Agency
+  if (location.hostname === "nationalgeneral.torrentflood.com") {
+    (function nfipAuto(){
+      const tok = tokenOKFromLocation();
+      if (tok.ok) armAutomations(tok.ts);
+      if(!isArmed()) return;
+
+      // Run only top frame (prevents iframe loops with @allFrames)
+      try { if (window.top !== window.self) return; } catch(_) {}
+
+      const hp = getHashParams();
+      const polFromHash = hp.get("pol") || "";
+      let pol = polFromHash;
+
+      if (!pol) {
+        const awaiting = sessionStorage.getItem(K_NFIP_AWAIT) === "1";
+        if (!awaiting) return;
+        pol = sessionStorage.getItem(K_NFIP_POL) || "";
+        if (!pol) return;
+      }
+
+      const keepTs = hp.get("ts") || String(Date.now());
+
+      const finish=()=>{
+        try{ history.replaceState(null,"",location.pathname+location.search);}catch(_){}
+        try{ sessionStorage.removeItem(K_NFIP_POL); sessionStorage.removeItem(K_NFIP_AWAIT);}catch(_){}
+        disarmAutomations();
+      };
+
+      function visible(el){ if(!el) return false; const r=el.getBoundingClientRect(); return !!(el.offsetParent||r.width||r.height); }
+      function waitForSel(selector, timeout=12000){
+        return new Promise(resolve=>{
+          const t0=performance.now();
+          const iv=setInterval(()=>{
+            const el=document.querySelector(selector);
+            if(el && visible(el)){ clearInterval(iv); resolve(el); }
+            else if(performance.now()-t0>timeout){ clearInterval(iv); resolve(null); }
+          },150);
+        });
+      }
+      function setNativeValue(el, value){
+        try{
+          const proto = (el.tagName === "TEXTAREA") ? HTMLTextAreaElement.prototype : HTMLInputElement.prototype;
+          const desc = Object.getOwnPropertyDescriptor(proto, "value");
+          if (desc && desc.set) desc.set.call(el, value);
+          else el.value = value;
+        }catch(_){ try{ el.value = value; }catch(__){} }
+      }
+
+      (async ()=>{
+        const isAgency = /\/Dashboard\/Agency/i.test(location.pathname || "");
+
+        // Detect if we're on a login screen (URL patterns OR common login controls)
+        const isLoginPage =
+          /\/Account\/Login/i.test(location.pathname || "") ||
+          /\/Login/i.test(location.pathname || "") ||
+          !!document.querySelector("input[type='password'], button[type='submit'], #Password, #UserName");
+
+        // Always persist state so it's ready after login / redirect
+        try{
+          sessionStorage.setItem(K_NFIP_POL, pol);
+          sessionStorage.setItem(K_NFIP_AWAIT, "1");
+        }catch(_){}
+
+        // SAFE GATE: If login, pause and let user sign in
+        if (isLoginPage) {
+          toast("NFIP: login detected — automation paused. Log in, then refresh.", 4500);
+          return;
+        }
+
+        if (!isAgency) {
+          location.replace(
+            NFIP_ORIGIN + NFIP_PATH +
+            "#pol=" + encodeURIComponent(pol) +
+            "&mci=1&ts=" + encodeURIComponent(keepTs)
+          );
+          return;
+        }
+
+        const input = await waitForSel("#DashboardQuickSearch_SearchText", 12000);
+        if(!input){ toast("NFIP: quick search box not found.", 2800); finish(); return; }
+
+        input.focus();
+        setNativeValue(input, "");
+        input.dispatchEvent(new Event("input",{bubbles:true}));
+        setNativeValue(input, pol);
+        input.dispatchEvent(new Event("input",{bubbles:true}));
+        input.dispatchEvent(new Event("change",{bubbles:true}));
+
+        const btn = await waitForSel("#DashQuickSearchButton", 8000);
+        if(btn) btn.click();
+
+        finish();
+      })();
+    })();
+  }
+
+
 
   // PROGRESSIVE (FAO) — safe automation: waits for login instead of looping
   if (location.hostname === "www.foragentsonly.com") {
