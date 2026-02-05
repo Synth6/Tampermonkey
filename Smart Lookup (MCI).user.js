@@ -412,7 +412,8 @@
       border:1px solid rgba(255,255,255,.14);
       border-radius:10px; box-shadow:0 10px 28px rgba(0,0,0,.38);
       padding:8px; font:12px/1.25 system-ui,Segoe UI,Arial;
-      min-width:300px;
+      width: 200px;
+      min-width: 150px;
     }
     #mci-hover-chooser .row{display:flex; align-items:center; gap:8px;}
     #mci-hover-chooser .lbl{opacity:.85; font-size:11px; white-space:nowrap;}
