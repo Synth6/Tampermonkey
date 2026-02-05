@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MCI Master Menu
 // @namespace    mci-tools
-// @version      5.6.2
+// @version      5.6.3
 // @description  MCI slide-out toolbox for carrier sites (QQ / Erie / NatGen / Progressive). Copy/Paste delegated to separate script.
 // @match        https://app.qqcatalyst.com/*
 // @match        https://*.qqcatalyst.com/*
@@ -411,7 +411,6 @@
     font-size:12px;
   }
 
-            display:flex; align-items:center; justify-content:space-between; font-weight:700; letter-spacing:.2px; }
   .mci-host{ opacity:.75; font-weight:600; font-size:12px }
   .mci-body{ padding:8px 10px }
   .mci-btn{ display:block; width:100%; margin:6px 0; padding:9px 10px; border-radius:8px;
@@ -596,19 +595,17 @@
 <div class="mci-footer-note shortcuts v2">
   <div class="tip">💡 <b>Tip:</b> Hover text, then press the key</div>
 
-  <div class="group">
-    <span class="kbd">F8</span>
+    <div class="group">
     <div class="list">
-      <div><b>Name</b> → LinkedIn</div>
-      <div><b>Address</b> → Maps + Vexcel</div>
-      <div><b>Policy #</b> → Carrier</div>
+        <div><span class="kbd">ALT</span> + <span class="kbd">Right-Click</span><span><b>SMART LOOKUP</b></div></span>
+        <div>Name → Address → Policy #</div>
     </div>
-  </div>
+    </div>
 
   <div class="group">
     <span class="kbd">F10</span>
     <div class="list">
-      <div><b>VIN</b> → NHTSA</div>
+      <div><b>VIN LOOKUP</b> → NHTSA</div>
     </div>
   </div>
 </div>
